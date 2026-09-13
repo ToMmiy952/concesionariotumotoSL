@@ -1,0 +1,233 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+
+
+/*Recordemos la manera de seleccionar cada elemento:
+    1) por etiqueta ´por ejemplo: 
+                body{                
+                    background-color: #f9f9f9;
+                }
+    2) por clase, se hace con el punto(.) por ejemplo: 
+                .nombreClase{
+                    background-color: #f9f9f9;
+                }
+    3) por id, se hace con el numeral(#) por ejemplo:
+                #nombreId{
+                    background-color: #f9f9f9;
+                }
+*/
+:root {
+    --color-primario: #03044e;
+    --color-primario-claro: #194382;
+    --color-acento: #0f3e99;
+    --color-acento-hover: #0b3178;
+    --color-fondo: #f9f9f9;
+    --color-fondo-tarjeta: #ffffff;
+    --color-texto: #1a1a1a;
+    --color-texto-claro: #ffffff;
+    --color-borde: #e0e0e0;
+    --fuente-base: "Montserrat", Arial, sans-serif;
+    --espaciado-sm: 0.5rem;
+    --espaciado-md: 1rem;
+    --espaciado-lg: 2rem;
+    --radio-borde: 8px;
+    --ancho-maximo: 1100px;
+    --sombra-tarjeta: 0 2px 8px rgba(3, 4, 78, 0.1);
+}
+
+/*==================SECCION HEADER(COMUN PARA TODAS LAS PAGINA)*/
+#header-principal {
+    display: flex;
+    align-items: center;
+    gap: var(--espaciado-md);
+    background-color: var(--color-primario);
+    color: var(--color-texto-claro);
+    padding: var(--espaciado-md) 5vw;
+}
+.logo {
+    width: 3rem;
+    height: 3rem;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+/*S================SECCION DE NAVBAR=======================*/
+.navbar-bootstrap {
+    background-color: var(--color-primario-claro);
+    color: var(--color-texto-claro);
+}
+.navbar-bootstrap a {   /*Con esto cambio el color de fuente de los items del nav*/    
+    color: var(--color-texto-claro);
+    display: block;
+    padding: var(--espaciado-sm) var(--espaciado-md);
+}
+.navbar-bootstrap a:hover {
+    color: var(--color-texto-claro); ;
+    background-color: var(--color-primario);
+}
+
+/*====================================================*/
+.cinta-bajo-carrusel {        
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);        
+    position: relative;
+    z-index: 2;
+    padding: var(--espaciado-md) 5vw;
+    
+}
+#titulo-promocion{
+    padding: var(--espaciado-md) 5vw;
+    border-radius: var(--radio-borde);
+    color:var(--color-texto-claro);
+    background-color: var(--color-primario-claro);
+    
+}
+
+
+/*=======================SECCION DE FOOTER COMUN PARA TODAS====================*/
+
+.site-footer {
+    background-color: var(--color-fondo-tarjeta);
+    color: var(--color-texto);
+    border-top: 1px solid var(--color-borde);
+}
+
+.footer-top {
+    max-width: var(--ancho-maximo);
+    margin: 0 auto;
+    padding: var(--espaciado-lg) 5vw;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espaciado-lg);
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.footer-brand {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--espaciado-sm);
+}
+
+.footer-logo {
+    width: 13rem;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    background: #dcdfe2;
+    border-radius: var(--radio-borde);
+    padding: var(--espaciado-sm);
+}
+
+.footer-col {
+    flex: 1 1 12rem;
+    min-width: 10rem;
+}
+
+.footer-col h3 {
+    font-size: 1rem;
+    margin: 0 0 var(--espaciado-md) 0;
+}
+
+.footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.footer-col li {
+    margin-bottom: var(--espaciado-sm);
+}
+
+.footer-col a {
+    color: var(--color-primario-claro);
+    text-decoration: none;
+}
+
+.footer-col a:hover {
+    text-decoration: underline;
+}
+
+.footer-col .footer-sep {
+    margin-top: var(--espaciado-md);
+}
+
+.footer-contacto h3 {
+    margin-bottom: var(--espaciado-sm);
+}
+
+.footer-contacto h3:not(:first-child) {
+    margin-top: var(--espaciado-md);
+}
+
+.footer-contacto p {
+    margin: 0;
+}
+
+.footer-redes {
+    display: flex;
+    gap: var(--espaciado-sm);
+    margin-top: var(--espaciado-md);
+}
+
+.footer-redes a {
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--color-primario);
+    color: var(--color-texto-claro);
+}
+
+.footer-redes svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: currentColor;
+}
+
+.footer-bottom {
+    background-color: var(--color-fondo);
+    border-top: 1px solid var(--color-borde);
+    text-align: center;
+    padding: var(--espaciado-md);
+    font-size: 0.85rem;
+}
+
+.footer-bottom p {
+    margin: 0;
+}
+
+@media (max-width: 700px) {
+    #header-principal {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    main {
+        padding: var(--espaciado-md) var(--espaciado-sm);
+    }
+
+    .catalogo-motos {
+        justify-content: center;
+    }
+
+    .nav-principal {
+        justify-content: center;
+    }
+
+    .footer-top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-redes {
+        justify-content: center;
+    }
+}
