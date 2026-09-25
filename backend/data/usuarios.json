@@ -1,0 +1,20 @@
+[ 
+    { "id": 101, 
+    "nombre": "Juan Pérez", 
+    "email": "cliente@tumoto.com", 
+    "password": "123", 
+    "rol": "cliente" 
+    }, 
+    { "id": 102, 
+    "nombre": "Carlos Vendedor", 
+    "email": "vendedor@tumoto.com", 
+    "password": "123", 
+    "rol": "vendedor" 
+    }, 
+    { "id": 103, 
+    "nombre": "Ana Administradora", 
+    "email": "admin@tumoto.com", 
+    "password": "123", 
+    "rol": "administrador" 
+    } 
+]

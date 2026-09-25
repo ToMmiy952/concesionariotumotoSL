@@ -1,0 +1,20 @@
+[ 
+    { "id": 1, 
+    "idMoto": 6, 
+    "motoModelo": "Yamaha XTZ 125", 
+    "idVendedor": 102, 
+    "nombreVendedor": "Carlos Vendedor", 
+    "fecha": "2026-09-10", 
+    "monto": 3600000, 
+    "comision": 108000 
+    }, 
+    { "id": 2, 
+    "idMoto": 4, 
+    "motoModelo": "Yamaha FZ 25 ABS", 
+    "idVendedor": 102, 
+    "nombreVendedor": "Carlos Vendedor",
+     "fecha": "2026-09-18", 
+     "monto": 5800000, 
+     "comision": 174000
+    }
+ ]
