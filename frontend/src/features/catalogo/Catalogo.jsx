@@ -53,6 +53,16 @@ function Catalogo() {
                     </li>
                 </ol>
             </section>
+            <section id="info-catalogo-ante-footer">
+               <h4 > Motos 0 Km</h4>
+<p>Cycles es la elección definitiva para adquirir tu Moto 0KM. 
+    Descubrí las marcas líderes del mercado como Zanella, Benelli, Motomel, Bajaj, Kymco, Corven y 
+    Yamaha y los últimos lanzamientos de sus modelos.</p>
+
+<p>Explorá la variedad de estilos, desde las elegantes Naked y deportivas Cross hasta las versátiles Scooter,
+ Ciclos, Touring, Chopper, Deportivas, ATV, UTV y otros. También te ofrecemos nuestra sección de motos Usadas.</p>
+
+            </section>
         </main>
     </>
 }

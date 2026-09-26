@@ -2,14 +2,19 @@ import {createBrowserRouter} from 'react-router'
 import LayoutPublico from './shared/layout/LayoutPublico'
 import Home from './features/home/Home'
 import Catalogo from './features/catalogo/Catalogo'
+import DetalleMoto from './features/catalogo/DetalleMoto'
+import PlanesAhorro from './features/planahorro/PlanesAhorro'
+import ServicioTecnico from './features/serviciotecnico/ServicioTecnico'
+import Contacto from './features/contacto/Contacto'
+import PaginaNoEncontrada from './shared/paginas/PaginaNoEncontrada'
 
 //Estos datos inicialmente estaban en app.jsx pero ahora van en router, ya que app queda limpia solo con router.
   const enlacesParaNavbar = [
     { id: 1, texto: "Inicio", destino: "/" },
     { id: 2, texto: "Motos", destino: "/catalogo" },
-    { id: 3, texto: "Planes de ahorro", destino: "#" },
-    { id: 4, texto: "Servicio tecnico", destino: "#" },
-    { id: 5, texto: "Contacto", destino: "#" },
+    { id: 3, texto: "Planes de ahorro", destino: "/planahorro" },
+    { id: 4, texto: "Servicio tecnico", destino: "/serviciotecnico" },
+    { id: 5, texto: "Contacto", destino: "/contacto" },
     { id: 6, texto: "Centro de ayuda", destino: "#" }
   ]
   {/*-------------------------------------------*/ }
@@ -21,10 +26,10 @@ import Catalogo from './features/catalogo/Catalogo'
 
   {/**estas son las props para el Footer */ }
   const categorias= [
-    {id: 1, texto: "Motos", destino: "#"},
+    {id: 1, texto: "Motos", destino: "/catalogo"},
     {id: 2, texto: "Cascos", destino: "#"},
-    {id: 3, texto: "Planes de ahorro", destino: "#"},
-    {id: 4, texto: "Servicio tecnico", destino: "#"},
+    {id: 3, texto: "Planes de ahorro", destino: "/planahorro"},
+    {id: 4, texto: "Servicio tecnico", destino: "/serviciotecnico"},
     {id: 5, texto: "Accesorios", destino: "#"},
     {id: 6, texto: "Arrepentimiento de compra", destino: "#"}
   ]
@@ -54,7 +59,12 @@ export const router = createBrowserRouter([
             children: [{
                 index: true, element: <Home/> },//con index true colocamos por defecto que cuando la URL sea exactamente / la pagina a dibujar es Home
                                                 //para agregar mas hijos a layout pongo una coma (,) y llaves para indicar mas elementos,{}, pero dentro del corchete que seria el arreglo de hijos
-                {path:'catalogo', element: <Catalogo/>}
+                {path:'catalogo', element: <Catalogo/>},
+                {path: 'catalogo/:id', element: <DetalleMoto/>},
+                {path: 'planahorro', element :<PlanesAhorro/>},
+                {path: 'serviciotecnico', element: <ServicioTecnico/>},
+                {path: 'contacto', element: <Contacto/>},
+                {path: '*', element: <PaginaNoEncontrada/>}
                 //RECORDARRRRRRRRR: Agregar el * para capturar un error de pagina no encontrada
             
         ]

@@ -4,7 +4,7 @@ function TarjetaMoto({ id, marca, modelo, precio, cilindrada, imagen }) {
     return (
         <div>
             <Link
-                to={"/motos/${id}"}
+                to={`/catalogo/${id}`} //SI o SI son esas comillas dobladas, las simples no funcionan
                 className="tarjeta-moto text-decoration-none d-block h-100 p-3 bg-white rounded shadow-sm text-dark position-relative text-center"
             >
                 <span
