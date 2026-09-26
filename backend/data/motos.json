@@ -5,7 +5,7 @@
         "modelo": "New Rouser NS 200", 
         "precio": 4200000, 
         "cilindrada": "200 cc", 
-        "imagen": "/img/productos/Bajaj-New-Rouser-NS-200.jpg", 
+        "imagen": "/img/productos/Bajaj-New-Rouser-NS-200.png", 
         "stock": 3, 
         "estado": "Disponible", 
         "descripcion": "Moto urbana deportiva con motor de triple bujía, refrigeración líquida y gran agilidad para la ciudad." 
@@ -15,7 +15,7 @@
         "modelo": "TRK 502", 
         "precio": 12500000, 
         "cilindrada": "500 cc", 
-        "imagen": "/img/productos/Benelli-TRK-502.jpg", 
+        "imagen": "/img/productos/Benelli-TRK-502.png", 
         "stock": 2, 
         "estado": "Disponible", 
         "descripcion": "Maxitrail touring diseñada para viajes largos, con postura ergonómica, gran parabrisas y protección de motor." 
@@ -59,5 +59,25 @@
            "stock": 2, 
            "estado": "Disponible", 
            "descripcion": "On-Off polivalente y resistente, perfecta tanto para asfalto como para caminos de tierra o terrenos irregulares." 
-        }    
+        },  
+         { "id": 7, 
+           "marca": "Yamaha", 
+           "modelo": "XTZ 125", 
+           "precio": 3600000, 
+           "cilindrada": "125 cc", 
+           "imagen": "/img/productos/Yamaha-XTZ-125.jpg", 
+           "stock": 2, 
+           "estado": "Disponible", 
+           "descripcion": "On-Off polivalente y resistente, perfecta tanto para asfalto como para caminos de tierra o terrenos irregulares." 
+        }  ,
+         { "id": 8, 
+           "marca": "Yamaha", 
+           "modelo": "XTZ 125", 
+           "precio": 3600000, 
+           "cilindrada": "125 cc", 
+           "imagen": "/img/productos/Yamaha-XTZ-125.jpg", 
+           "stock": 2, 
+           "estado": "Disponible", 
+           "descripcion": "On-Off polivalente y resistente, perfecta tanto para asfalto como para caminos de tierra o terrenos irregulares." 
+        }  
 ]
