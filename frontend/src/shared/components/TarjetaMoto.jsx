@@ -2,7 +2,7 @@ import { Link } from "react-router";
 
 function TarjetaMoto({ id, marca, modelo, precio, cilindrada, imagen }) {
     return (
-        <div className="col-12 col-sm-6 col-lg-3">
+        <div>
             <Link
                 to={"/motos/${id}"}
                 className="tarjeta-moto text-decoration-none d-block h-100 p-3 bg-white rounded shadow-sm text-dark position-relative text-center"
@@ -16,10 +16,6 @@ function TarjetaMoto({ id, marca, modelo, precio, cilindrada, imagen }) {
                     src={imagen}
                     alt={`${marca} ${modelo}`}
                     className="img-fluid mb-3"
-                    style={{
-                        height: "150px",
-                        objectFit: "contain"
-                    }}
                 />
 
                 <h4 className="fs-6 fw-normal text-secondary mb-1">
