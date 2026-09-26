@@ -460,6 +460,17 @@ textarea {
     background-color: #c0c0c0;
     
 }
+#como-comprar-tu-moto{
+    margin-top: var(--espaciado-lg);
+}
+#info-catalogo-ante-footer h4{
+    margin-top: var(--espaciado-lg);
+    text-align: center;
+}
+#titulo-tabla-service{
+    text-align: center;
+    color: #1a1a1a;
+}
 
 @media (max-width: 700px) {
     #header-principal {
