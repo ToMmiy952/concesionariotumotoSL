@@ -202,6 +202,97 @@ img {
 .footer-bottom p {
     margin: 0;
 }
+body {
+    margin: 0;
+    font-family: var(--fuente-base);
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+main {
+    max-width: var(--ancho-maximo);
+    margin: 0 auto;
+    padding: var(--espaciado-lg) 5vw;
+}
+
+.titulo-paso {
+    display: block;
+    font-weight: bold;
+    color: var(--color-primario);
+    padding: var(--espaciado-sm) 0;
+}
+h1, h2, h3 {
+    color: var(--color-primario);
+    font-weight: 700;
+}
+p {
+    margin: 0 0 var(--espaciado-sm) 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+.catalogo-motos {
+        justify-content: center;
+        display: grid;
+    grid-template-columns: repeat(4,1fr);
+    /*Las dos lineas anteriores son para que la primer y segunda,etc fila
+    de tarjetas de motos siempre se vean alineadas*/
+    flex-wrap: wrap;
+    gap: var(--espaciado-lg);
+    }
+    .tarjeta-moto {
+   position: relative;
+    display: block;
+    flex: 1 1 12rem;
+    max-width: 16rem;
+    background-color: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-borde);
+    box-shadow: var(--sombra-tarjeta);
+    padding: var(--espaciado-md);
+    text-align: center;
+    text-decoration: none;
+    color: var(--color-texto);
+}
+
+.tarjeta-moto:hover {
+    box-shadow: 0 4px 14px rgba(3, 4, 78, 0.2);
+}
+
+.tarjeta-moto img {
+    width: 100%;
+    height: 8rem;
+    object-fit: contain;
+}
+
+.tarjeta-moto h4 {
+    margin: var(--espaciado-sm) 0 0 0;
+    color: var(--color-acento);
+    font-size: 1rem;
+}
+
+.tarjeta-moto .precio {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: var(--espaciado-sm) 0 0 0;
+}
+
+.tarjeta-moto .color-label {
+    font-size: 0.8rem;
+    color: var(--color-primario-claro);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.tarjeta-moto .colores {
+    display: flex;
+    justify-content: center;
+    gap: var(--espaciado-sm);
+    margin-top: var(--espaciado-sm);
+}
 
 @media (max-width: 700px) {
     #header-principal {
@@ -211,10 +302,6 @@ img {
 
     main {
         padding: var(--espaciado-md) var(--espaciado-sm);
-    }
-
-    .catalogo-motos {
-        justify-content: center;
     }
 
     .nav-principal {
