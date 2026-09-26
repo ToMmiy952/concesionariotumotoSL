@@ -8,8 +8,8 @@ function Catalogo() {
             <p>Explora nuestras unidades disponibles y ponte en contacto con un asesor de inmediato.</p>
 
             <section id="catalogo">
-                <div className="catalogo-motos">
-                    <h3>Nuestro catalogo</h3>
+                <h3>Nuestro catalogo</h3>
+                <div className="catalogo-motos">                    
                     {motosData.map((moto) => (
                         <TarjetaMoto
                             key={moto.id}
