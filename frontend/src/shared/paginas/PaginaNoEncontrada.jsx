@@ -13,8 +13,8 @@ function NoEncontradaPage() {
           ? 'Ocurrió un error inesperado. Probá volver al inicio.'
           : 'La dirección que buscás no existe o fue movida.'}
       </p>
-     <Link to="/catalogo" className="btn btn-primary mt-3">
-                    Volver al catálogo
+     <Link to="/" className="btn btn-primary mt-3">
+                    Volver al inicio
                 </ Link>
     </div>
   )

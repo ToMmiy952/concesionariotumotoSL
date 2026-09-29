@@ -1,4 +1,7 @@
+//Aca el <a href=... se convierte en NavLinkto
+import { Link, NavLink } from "react-router";
 function Navbar({enlaces}) { {/**con shift+alt+f ordeno todo el codigo identacion */}
+
 
     return (
             <nav className="navbar navbar-expand-lg p-0 navbar-bootstrap" >
@@ -10,7 +13,7 @@ function Navbar({enlaces}) { {/**con shift+alt+f ordeno todo el codigo identacio
                         <ul className="navbar-nav mb-2 mb-lg-0">
                             {enlaces.map((enlace) => (
                                 <li className="nav-item" key={enlace.id}> {/**el atributo KEY ES NECESARIO!! para que el map funcione bien */}
-                                    <a className="nav-link" href={enlace.destino}>{enlace.texto}</a>
+                                    <NavLink className="nav-link" to={enlace.destino} end={enlace.destino === '/'}>{enlace.texto}</NavLink>
                                 </li>
                             ))}
                         </ul>                        
