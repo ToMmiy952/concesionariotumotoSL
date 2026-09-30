@@ -5,6 +5,7 @@ import elegisiemprequisiste from '../../assets/elegisiemprequisiste.png'
 import img2pcarru from '../../assets/img2pcarru.png'
 import TarjetaMoto from '../../shared/components/TarjetaMoto'
 import motosData from '../../../../backend/data/motos.json'
+import plan from '../../assets/plan.png'
 function Home() {
     const motosPorPagina = 4;
     const paginasCarrusel = [];
@@ -166,9 +167,6 @@ function Home() {
                     </button>
 
 
-
-
-
                 </div>
             </div>
 
@@ -199,8 +197,13 @@ function Home() {
                             ></iframe>
                         </div>
                     </div>
-                </div>
+                </div>                                                  
             </div>
+             <img
+                src={plan}
+                className="d-block w-100"
+                alt="imgSiemprequisiste"
+            />
         </>
     );
 }
