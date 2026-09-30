@@ -1,9 +1,10 @@
 import { useParams, Link } from 'react-router';
+import { useState } from 'react';
+
 import motosData from '../../../../backend/data/motos.json'
 function DetalleMoto() {
     const { id } = useParams();//obtengo el id que viene en la url
     const moto = motosData.find((item) => item.id === Number(id));//la busco en el json 
-
     if (!moto) { //si la moto no esta:
         return (
             <div className="container my-5 text-center">
@@ -22,6 +23,39 @@ function DetalleMoto() {
         currency: 'ARS',
         maximumFractionDigits: 0
     }).format(moto.precio);
+
+    //creo el estado del formulario
+    const [formulario, setFormulario] = useState({
+        nombre: "",
+        email: "",
+        fecha: "",
+        horario: "",
+        comentario: ""
+    })
+
+    function manejarEnvio(e) { //esta es la funcion que se ejecuta al oprimir el submit, boton
+        e.preventDefault(); //para que no recargue la pagina al enviar 
+
+        //ahora creo la consulta que voy a guardar.
+        const nuevaConsulta = {
+            idMoto: id,
+            ...formulario//uso ...formulario porque esto ya contiene todos los datos estructurados del form, es como un objeto
+        };
+        const consultasGuardadas =
+            JSON.parse(localStorage.getItem("consultas")) || []; //Se usa PARSE para leer, esto convierte el texto a un array que se pueda usar
+        //La parte de || [] es para que devuelva un array en lugar de "null" si no hay consultas guardadas
+        const consultasTotales = [
+            ...consultasGuardadas, //Los 3 puntos "..." es la clave, coloca en este array todo lo que estaba, mas la nueva consulta, 
+            nuevaConsulta          //de lo contrario pisaria los valores que ya estaban
+        ];
+
+        //Una vez actualizadas las consultas, las guardo en localStorage
+        localStorage.setItem("consultas", JSON.stringify(consultasTotales))
+
+        console.log("Consultas totales:", consultasTotales);
+
+    }
+
 
     return (
         <>
@@ -75,7 +109,7 @@ function DetalleMoto() {
                             ¿Te interesa esta moto? Dejanos tus datos
                         </h3>
 
-                        <form action="#" method="post" className="row g-3">
+                        <form className="row g-3" onSubmit={manejarEnvio}>
                             <div className="col-md-6">
                                 <label htmlFor="nombre" className="form-label">
                                     Nombre:
@@ -86,6 +120,13 @@ function DetalleMoto() {
                                     id="nombre"
                                     name="nombre-c"
                                     className="form-control"
+                                    value={formulario.nombre}
+                                    onChange={(e) =>
+                                        setFormulario({
+                                            ...formulario,
+                                            nombre: e.target.value
+                                        })
+                                    }
                                     required
                                 />
                             </div>
@@ -100,6 +141,13 @@ function DetalleMoto() {
                                     id="email"
                                     name="email-c"
                                     className="form-control"
+                                    value={formulario.email}
+                                    onChange={(e) =>
+                                        setFormulario({
+                                            ...formulario,
+                                            email: e.target.value
+                                        })
+                                    }
                                     required
                                 />
                             </div>
@@ -114,6 +162,13 @@ function DetalleMoto() {
                                     id="fecha"
                                     name="fecha-c"
                                     className="form-control"
+                                    value={formulario.fecha}
+                                    onChange={(e) =>
+                                        setFormulario({
+                                            ...formulario,
+                                            fecha: e.target.value
+                                        })
+                                    }
                                 />
                             </div>
 
@@ -126,7 +181,13 @@ function DetalleMoto() {
                                     name="horario-c"
                                     id="horario"
                                     className="form-select"
-                                    defaultValue=""
+                                    value={formulario.horario}
+                                    onChange={(e) =>
+                                        setFormulario({
+                                            ...formulario,
+                                            horario: e.target.value
+                                        })
+                                    }
                                 >
                                     <option value="" disabled>
                                         Seleccioná un horario
@@ -148,6 +209,13 @@ function DetalleMoto() {
                                     id="comentario"
                                     className="form-control"
                                     rows="3"
+                                    value={formulario.comentario}
+                                    onChange={(e) =>
+                                        setFormulario({
+                                            ...formulario,
+                                            comentario: e.target.value
+                                        })
+                                    }
                                 ></textarea>
                             </div>
 
