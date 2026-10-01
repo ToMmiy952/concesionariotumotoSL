@@ -1,0 +1,187 @@
+/* ===== Layout del gestor ===== */
+.gestor {
+    min-height: 100vh;
+    display: flex;
+    background-color: var(--color-fondo);
+}
+
+.gestor-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background-color: var(--color-primario);
+    color: var(--color-texto-claro);
+    padding: var(--espaciado-md);
+}
+
+.gestor-sidebar .marca {
+    display: flex;
+    align-items: center;
+    gap: var(--espaciado-sm);
+    margin-bottom: var(--espaciado-lg);
+}
+
+.gestor-sidebar .marca h1 {
+    color: var(--color-texto-claro);
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.gestor-sidebar .nav-link {
+    color: var(--color-texto-claro);
+    font-weight: 500;
+    padding: var(--espaciado-sm) var(--espaciado-md);
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.gestor-sidebar .nav-link:hover {
+    background-color: var(--color-primario-claro);
+}
+
+/* NavLink de react-router agrega la clase "active" solo */
+.gestor-sidebar .nav-link.active {
+    background-color: var(--color-acento);
+}
+
+.gestor-contenido {
+    flex: 1;
+    min-width: 0; /* evita que una tabla ancha rompa el layout */
+}
+
+.gestor-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--color-primario-claro);
+    color: var(--color-texto-claro);
+    padding: var(--espaciado-sm) var(--espaciado-lg);
+}
+
+/* pisamos las reglas globales de style.css solo dentro del gestor */
+.gestor main {
+    max-width: none;
+    margin: 0;
+    padding: var(--espaciado-lg);
+}
+
+.gestor table {
+    min-width: 0;
+    margin-top: 0;
+    box-shadow: none;
+}
+
+.gestor th,
+.gestor td {
+    white-space: normal;
+}
+
+.gestor form {
+    max-width: 42rem;
+}
+
+/* botones de Bootstrap con los colores del sitio */
+.gestor .btn-primary,
+.login-pagina .btn-primary {
+    --bs-btn-bg: var(--color-acento);
+    --bs-btn-border-color: var(--color-acento);
+    --bs-btn-hover-bg: var(--color-acento-hover);
+    --bs-btn-hover-border-color: var(--color-acento-hover);
+    --bs-btn-active-bg: var(--color-acento-hover);
+    --bs-btn-active-border-color: var(--color-acento-hover);
+}
+
+.gestor .btn-outline-primary {
+    --bs-btn-color: var(--color-acento);
+    --bs-btn-border-color: var(--color-acento);
+    --bs-btn-hover-bg: var(--color-acento);
+    --bs-btn-hover-border-color: var(--color-acento);
+    --bs-btn-active-bg: var(--color-acento-hover);
+    --bs-btn-active-border-color: var(--color-acento-hover);
+}
+
+/* ===== Tarjetas del panel ===== */
+.tarjeta-metrica {
+    background-color: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-borde);
+    box-shadow: var(--sombra-tarjeta);
+    padding: var(--espaciado-md);
+    display: flex;
+    align-items: center;
+    gap: var(--espaciado-md);
+    height: 100%;
+}
+
+.tarjeta-metrica .icono {
+    font-size: 1.8rem;
+    color: var(--color-acento);
+}
+
+.tarjeta-metrica h3 {
+    font-size: 0.85rem;
+    color: var(--color-primario-claro);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.tarjeta-metrica p {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.tarjeta-tabla {
+    background-color: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-borde);
+    box-shadow: var(--sombra-tarjeta);
+    padding: var(--espaciado-md);
+}
+
+.miniatura-moto {
+    width: 64px;
+    height: 48px;
+    object-fit: contain;
+}
+
+/* ===== Login ===== */
+.login-pagina {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-primario);
+    padding: var(--espaciado-md);
+}
+
+.login-pagina form {
+    width: 100%;
+    max-width: 24rem;
+    padding: var(--espaciado-lg);
+}
+
+.login-pagina .logo {
+    align-self: center;
+    width: 4rem;
+    height: 4rem;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .gestor {
+        flex-direction: column;
+    }
+
+    .gestor-sidebar {
+        width: 100%;
+    }
+
+    .gestor-sidebar .nav {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+    }
+
+    .gestor main {
+        padding: var(--espaciado-md);
+    }
+}
