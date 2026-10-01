@@ -7,6 +7,12 @@ import PlanesAhorro from './features/planahorro/PlanesAhorro'
 import ServicioTecnico from './features/serviciotecnico/ServicioTecnico'
 import Contacto from './features/contacto/Contacto'
 import PaginaNoEncontrada from './shared/paginas/PaginaNoEncontrada'
+import LoginPage from './features/auth/LoginPage'
+import LayoutGestor from './shared/layout/LayoutGestor'
+import PanelInicioPage from './features/admin/PanelInicioPage'
+import ProductosPage from './features/admin/ProductosPage'
+import ProductoFormPage from './features/admin/ProductoFormPage'
+import { protegerRuta, redirigirSiHaySesion } from './features/auth/loaders'
 
 //Estos datos inicialmente estaban en app.jsx pero ahora van en router, ya que app queda limpia solo con router.
   const enlacesParaNavbar = [
@@ -68,7 +74,22 @@ export const router = createBrowserRouter([
                 //RECORDARRRRRRRRR: Agregar el * para capturar un error de pagina no encontrada
             
         ]
-    }
+    },
+
+    { path: '/login', element: <LoginPage />, loader: redirigirSiHaySesion },
+    {
+      path: '/gestor',
+      element: <LayoutGestor />,
+      loader: protegerRuta(['vendedor', 'administrador']),
+      children: [
+        { index: true, element: <PanelInicioPage />, loader: protegerRuta(['administrador']) },
+        // { path: 'pedidos', ... }  ← Integrante 2
+        // { path: 'stock', ... }    ← Integrante 2
+        { path: 'productos', element: <ProductosPage />, loader: protegerRuta(['administrador']) },
+        { path: 'productos/nuevo', element: <ProductoFormPage />, loader: protegerRuta(['administrador']) },
+        { path: 'productos/:id/editar', element: <ProductoFormPage />, loader: protegerRuta(['administrador']) },
+      ],
+    },
 
     //----------Aca deberiamos declarar vista privada
 ])
