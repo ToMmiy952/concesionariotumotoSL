@@ -1,6 +1,9 @@
+import ImagenSeccion from "../../shared/components/ImagenSeccion"
+import fotoplan from "../../assets/plan.png"
 function PlanesAhorro(){
     return(
         <>
+        <ImagenSeccion foto={fotoplan} descripcion={""}/>
         <main>
         <h2>Planes de ahorro</h2>
         <p>Elegi el plan que mejor se adapte a tu bolsillo para acceder a tu moto 0km.</p>

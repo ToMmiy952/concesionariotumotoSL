@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1,
+    "nombre": "Casco Integral Sport",
+    "precio": 85000,
+    "talle": ["S", "M", "L", "XL"],
+    "descripcion": "Casco integral con certificación DOT, liviano y ventilado.",
+    "imagen": "/img/casco-sport.jpg",
+    "stock": 12
+  },
+  {
+    "id": 2,
+    "nombre": "Guantes de Cuero Racing",
+    "precio": 25000,
+    "talle": ["S", "M", "L", "XL"],
+    "descripcion": "Guantes de cuero reforzado con protección en nudillos.",
+    "imagen": "/img/guantes-racing.jpg",
+    "stock": 20
+  },
+  {
+    "id": 3,
+    "nombre": "Campera Impermeable Touring",
+    "precio": 120000,
+    "talle": ["M", "L", "XL"],
+    "descripcion": "Campera impermeable con protecciones en hombros y codos.",
+    "imagen": "/img/campera-touring.jpg",
+    "stock": 8
+  },
+  {
+    "id": 4,
+    "nombre": "Remera Moto Club",
+    "precio": 15000,
+    "talle": ["S", "M", "L", "XL"],
+    "descripcion": "Remera de algodón con estampa del club motero.",
+    "imagen": "/img/remera-club.jpg",
+    "stock": 30
+  },
+  {
+    "id": 5,
+    "nombre": "Casco Abierto Urban",
+    "precio": 60000,
+    "talle": ["S", "M", "L"],
+    "descripcion": "Casco abierto ideal para ciudad, con visor transparente.",
+    "imagen": "/img/casco-urban.jpg",
+    "stock": 15
+  },
+  {
+    "id": 6,
+    "nombre": "Guantes de Verano Ventilados",
+    "precio": 18000,
+    "talle": ["S", "M", "L", "XL"],
+    "descripcion": "Guantes livianos con malla ventilada para días calurosos.",
+    "imagen": "/img/guantes-verano.jpg",
+    "stock": 25
+  },
+  {
+    "id": 7,
+    "nombre": "Campera Deportiva Verano",
+    "precio": 95000,
+    "talle": ["M", "L", "XL"],
+    "descripcion": "Campera liviana con protecciones desmontables.",
+    "imagen": "/img/campera-verano.jpg",
+    "stock": 10
+  }
+]

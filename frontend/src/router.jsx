@@ -6,16 +6,18 @@ import DetalleMoto from './features/catalogo/DetalleMoto'
 import PlanesAhorro from './features/planahorro/PlanesAhorro'
 import ServicioTecnico from './features/serviciotecnico/ServicioTecnico'
 import Contacto from './features/contacto/Contacto'
+//import Acc
 import PaginaNoEncontrada from './shared/paginas/PaginaNoEncontrada'
 
 //Estos datos inicialmente estaban en app.jsx pero ahora van en router, ya que app queda limpia solo con router.
   const enlacesParaNavbar = [
     { id: 1, texto: "Inicio", destino: "/" },
     { id: 2, texto: "Motos", destino: "/catalogo" },
-    { id: 3, texto: "Planes de ahorro", destino: "/planahorro" },
-    { id: 4, texto: "Servicio tecnico", destino: "/serviciotecnico" },
-    { id: 5, texto: "Contacto", destino: "/contacto" },
-    { id: 6, texto: "Centro de ayuda", destino: "#" }
+    {id: 3, texto: "Accesorios", destino:"/accesorios"},
+    { id: 4, texto: "Planes de ahorro", destino: "/planahorro" },
+    { id: 5, texto: "Servicio tecnico", destino: "/serviciotecnico" },
+    { id: 6, texto: "Contacto", destino: "/contacto" },
+    { id: 7, texto: "Centro de ayuda", destino: "#" }
   ]
   {/*-------------------------------------------*/ }
 
