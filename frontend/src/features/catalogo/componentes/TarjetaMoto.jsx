@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 
 function TarjetaMoto({ id, marca, modelo, precio, cilindrada, imagen }) {
+    
     return (
         <div>
             <Link

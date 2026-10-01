@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router';
 import { useState } from 'react';
 
-import motosData from '../../../../backend/data/motos.json'
+import motosData from '../../../../../backend/data/motos.json'
 function DetalleMoto() {
     const { id } = useParams();//obtengo el id que viene en la url
     const moto = motosData.find((item) => item.id === Number(id));//la busco en el json 

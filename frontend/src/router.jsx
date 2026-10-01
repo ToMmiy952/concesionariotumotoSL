@@ -1,13 +1,14 @@
 import {createBrowserRouter} from 'react-router'
 import LayoutPublico from './shared/layout/LayoutPublico'
 import Home from './features/home/Home'
-import Catalogo from './features/catalogo/Catalogo'
-import DetalleMoto from './features/catalogo/DetalleMoto'
+import Catalogo from './features/catalogo/paginas/CatalogoMotos'
+import DetalleMoto from './features/catalogo/paginas/DetalleMoto'
 import PlanesAhorro from './features/planahorro/PlanesAhorro'
 import ServicioTecnico from './features/serviciotecnico/ServicioTecnico'
 import Contacto from './features/contacto/Contacto'
-//import Acc
+import Accesorios from './features/catalogo/paginas/CatalogoAccesorios'
 import PaginaNoEncontrada from './shared/paginas/PaginaNoEncontrada'
+import DetalleAccesorio from './features/catalogo/paginas/DetalleAccesorio'
 import LoginPage from './features/auth/LoginPage'
 import LayoutGestor from './shared/layout/LayoutGestor'
 import PanelInicioPage from './features/admin/PanelInicioPage'
@@ -72,6 +73,8 @@ export const router = createBrowserRouter([
                 {path: 'planahorro', element :<PlanesAhorro/>},
                 {path: 'serviciotecnico', element: <ServicioTecnico/>},
                 {path: 'contacto', element: <Contacto/>},
+                {path: 'accesorios', element: <Accesorios/>},
+                {path: 'accesorios/:id', element: <DetalleAccesorio/>},
                 {path: '*', element: <PaginaNoEncontrada/>}
                 //RECORDARRRRRRRRR: Agregar el * para capturar un error de pagina no encontrada
             

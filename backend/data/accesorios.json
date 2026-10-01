@@ -5,7 +5,7 @@
     "precio": 85000,
     "talle": ["S", "M", "L", "XL"],
     "descripcion": "Casco integral con certificación DOT, liviano y ventilado.",
-    "imagen": "/img/casco-sport.jpg",
+    "imagen": "/img/accesorios/casco-sport.jpg",
     "stock": 12
   },
   {
@@ -14,7 +14,7 @@
     "precio": 25000,
     "talle": ["S", "M", "L", "XL"],
     "descripcion": "Guantes de cuero reforzado con protección en nudillos.",
-    "imagen": "/img/guantes-racing.jpg",
+    "imagen": "/img/accesorios/guantes-racing.jpg",
     "stock": 20
   },
   {
@@ -23,7 +23,7 @@
     "precio": 120000,
     "talle": ["M", "L", "XL"],
     "descripcion": "Campera impermeable con protecciones en hombros y codos.",
-    "imagen": "/img/campera-touring.jpg",
+    "imagen": "/img/accesorios/campera-touring.jpg",
     "stock": 8
   },
   {
@@ -32,7 +32,7 @@
     "precio": 15000,
     "talle": ["S", "M", "L", "XL"],
     "descripcion": "Remera de algodón con estampa del club motero.",
-    "imagen": "/img/remera-club.jpg",
+    "imagen": "/img/accesorios/remera-club.jpg",
     "stock": 30
   },
   {
@@ -41,7 +41,7 @@
     "precio": 60000,
     "talle": ["S", "M", "L"],
     "descripcion": "Casco abierto ideal para ciudad, con visor transparente.",
-    "imagen": "/img/casco-urban.jpg",
+    "imagen": "/img/accesorios/casco-urban.jpg",
     "stock": 15
   },
   {
@@ -50,16 +50,7 @@
     "precio": 18000,
     "talle": ["S", "M", "L", "XL"],
     "descripcion": "Guantes livianos con malla ventilada para días calurosos.",
-    "imagen": "/img/guantes-verano.jpg",
+    "imagen": "/img/accesorios/guantes-verano.jpg",
     "stock": 25
-  },
-  {
-    "id": 7,
-    "nombre": "Campera Deportiva Verano",
-    "precio": 95000,
-    "talle": ["M", "L", "XL"],
-    "descripcion": "Campera liviana con protecciones desmontables.",
-    "imagen": "/img/campera-verano.jpg",
-    "stock": 10
   }
 ]

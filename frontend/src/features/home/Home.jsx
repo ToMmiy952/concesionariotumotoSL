@@ -3,7 +3,7 @@ import debcredito from '../../assets/debcredito.png'
 import img1pcarrusel from '../../assets/img1pcarrusel.png'
 import elegisiemprequisiste from '../../assets/elegisiemprequisiste.png'
 import img2pcarru from '../../assets/img2pcarru.png'
-import TarjetaMoto from '../../shared/components/TarjetaMoto'
+import TarjetaMoto from '../catalogo/componentes/TarjetaMoto'
 import motosData from '../../../../backend/data/motos.json'
 import plan from '../../assets/plan.png'
 function Home() {

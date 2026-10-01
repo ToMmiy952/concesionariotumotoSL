@@ -1,7 +1,7 @@
-import TarjetaMoto from "../../shared/components/TarjetaMoto"
-import motosData from "../../../../backend/data/motos.json"
-import ImagenSeccion from "../../shared/components/ImagenSeccion"
-import foto from "../../assets/fotocatalogo.png"
+import motosData from "../../../../../backend/data/motos.json"
+import ImagenSeccion from "../../../shared/components/ImagenSeccion"
+import foto from "../../../assets/fotocatalogo.png"
+import GrillaProductos from "../componentes/GrillaMotos"
 import { useState } from "react"
 
 function Catalogo() {
@@ -21,7 +21,9 @@ function Catalogo() {
 
     return <>
         {/**Todo este codigo es solo para poner el texto sobre la imagen */}
+        
        <ImagenSeccion foto={foto} descripcion={"Motos"}/>
+
         <main>
             <h2>Elegi la moto que siempre quisiste!</h2>
             <p>Explora nuestras unidades disponibles y ponte en contacto con un asesor de inmediato.</p>
@@ -41,6 +43,7 @@ function Catalogo() {
                             </button>
 
                             <ul className="dropdown-menu">
+                                <li><button class="dropdown-item" type="button" onClick={()=> setOrdenSeleccionado("Relevancia")}>Relevancia</button></li>
                                 <li><button class="dropdown-item" type="button" onClick={()=> setOrdenSeleccionado("Precio: menor a mayor")}>Precio: menor a mayor</button></li>
                                 <li><button class="dropdown-item" type="button" onClick={()=> setOrdenSeleccionado("Precio: mayor a menor")}>Precio: mayor a menor</button></li>
                             </ul>
@@ -48,20 +51,7 @@ function Catalogo() {
                     </div>
                 </div>
 
-
-                <div className="catalogo-motos mt-3">
-                    {motosOrdenadas.map((moto) => (
-                        <TarjetaMoto
-                            key={moto.id}
-                            id={moto.id}
-                            marca={moto.marca}
-                            modelo={moto.modelo}
-                            precio={moto.precio}
-                            cilindrada={moto.cilindrada}
-                            imagen={moto.imagen}
-                        />
-                    ))}
-                </div>
+                <GrillaProductos motosOrdenadas={motosOrdenadas}/>{/**Es para mostrar las tarjetas de motos */}
             </section>
             <section id="como-comprar-tu-moto">
                 <h3>Pasos para comprar una moto</h3>
