@@ -63,7 +63,7 @@ function DetalleAccesorio() {
                                 Precio: {precioFormateado}
                             </li>
                         </ul>
-                        <button
+                        <button id='comprar'
                             type="button"
                             className="btn btn-primary btn-lg w-100 mt-3"
                             disabled={!talleElegido}

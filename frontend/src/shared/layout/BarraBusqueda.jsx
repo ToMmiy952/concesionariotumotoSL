@@ -1,7 +1,6 @@
 import { useState } from "react";
 
-function BarraBusqueda({ titulo, logo }) {
-    const [carritoAbierto, setCarritoAbierto] = useState(false);
+function BarraBusqueda({ titulo, logo, onAbrirCarrito }) {
     return (
         <header id="header-principal" className="d-flex align-items-center gap-3">
             <div className="d-flex align-items-center gap-2">
@@ -19,33 +18,11 @@ function BarraBusqueda({ titulo, logo }) {
                 </form>
             </div>
             <div className="d-flex align-items-center gap-2">
-                <button className="btn btn-primary" onClick={() => setCarritoAbierto(true)}>
+                <button className="btn btn-primary" onClick={onAbrirCarrito}>
                     <i className="bi bi-cart4"></i> {/**Logo de carrito */}
                 </button>
             </div>
-            {/**Panel de carrito */}
-            {carritoAbierto && (
-                <div
-                    className="offcanvas offcanvas-end show"
-                    style={{
-                        width: "33.33vw",
-                    }}
-                >
-                    <div className="offcanvas-header">
-                        <h5 className="offcanvas-title">Carrito</h5>
-
-                        <button
-                            type="button"
-                            className="btn-close"
-                            onClick={() => setCarritoAbierto(false)}
-                        ></button>
-                    </div>
-
-                    <div className="offcanvas-body">
-                        {/* Más adelante irá el contenido del carrito */}
-                    </div>
-                </div>
-            )}
+           
             <div className="d-flex align-items-center flex-nowrap gap-2">
                 <button className="btn btn-primary">
                     <i className="bi bi-person"></i> <span style={{ fontSize: '0.75rem', lineHeight: '1.2' }}>Mi cuenta</span> {/**Logo de inicio sesion */}
