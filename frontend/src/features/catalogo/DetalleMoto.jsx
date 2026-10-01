@@ -32,6 +32,7 @@ function DetalleMoto() {
         horario: "",
         comentario: ""
     })
+    const [consultaEnviada, setConsultaEnviada] = useState(false); //Inicalmente, no muestra el mensaje de consulta enviada 
 
     function manejarEnvio(e) { //esta es la funcion que se ejecuta al oprimir el submit, boton
         e.preventDefault(); //para que no recargue la pagina al enviar 
@@ -51,8 +52,21 @@ function DetalleMoto() {
 
         //Una vez actualizadas las consultas, las guardo en localStorage
         localStorage.setItem("consultas", JSON.stringify(consultasTotales))
+        setFormulario({ //Limpiro el formulario 
+            nombre: "",
+            email: "",
+            fecha: "",
+            horario: "",
+            comentario: ""
+        });
+
+        //Luego de guardar la consulta, muestro mensaje de exito!
+        setConsultaEnviada(true);
 
         console.log("Consultas totales:", consultasTotales);
+
+
+
 
     }
 
@@ -228,6 +242,49 @@ function DetalleMoto() {
                                 </button>
                             </div>
                         </form>
+                        {/*Ventana emergente para mostrar exito de envio de consulta.*/}                                        
+                        {consultaEnviada && (
+                            <div
+                                className="modal fade show"
+                                style={{ display: "block" }}
+                                tabIndex="-1"
+                                role="dialog"
+                            >
+                                <div className="modal-dialog modal-dialog-centered">
+                                    <div className="modal-content">
+
+                                        <div className="modal-header">
+                                            <h5 className="modal-title">
+                                                Consulta enviada
+                                            </h5>
+
+                                            <button
+                                                type="button"
+                                                className="btn-close"
+                                                onClick={() => setConsultaEnviada(false)}
+                                            ></button>
+                                        </div>
+
+                                        <div className="modal-body">
+                                            <p className="mb-0">
+                                                ¡Tu consulta fue enviada con éxito, Pronto te contactaremos!
+                                            </p>
+                                        </div>
+
+                                        <div className="modal-footer">
+                                            <button
+                                                type="button"
+                                                className="btn btn-primary"
+                                                onClick={() => setConsultaEnviada(false)}
+                                            >
+                                                Aceptar
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </main>
