@@ -19,3 +19,9 @@ export function obtenerSesion() {
     const sesion = localStorage.getItem(CLAVE)
     return sesion ? JSON.parse(sesion) : null
 }
+
+export function rutaInicial(rol) {
+  if (rol === 'administrador') return '/gestor'
+  if (rol === 'vendedor') return '/gestor/pedidos'
+  return '/'
+}

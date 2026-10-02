@@ -21,12 +21,8 @@ function LayoutGestor() {
         <nav className="nav flex-column gap-1">
           <NavLink className="nav-link" to="/gestor/pedidos"><i className="bi bi-inbox me-2"></i>Pedidos</NavLink>
           <NavLink className="nav-link" to="/gestor/stock"><i className="bi bi-box-seam me-2"></i>Stock</NavLink>
-          {sesion.rol === 'administrador' && (
-            <>
-              {/* end: sin esto "Panel" queda activo en todas las rutas /gestor/... */}
-              <NavLink className="nav-link" to="/gestor" end><i className="bi bi-speedometer2 me-2"></i>Panel</NavLink>
-              <NavLink className="nav-link" to="/gestor/productos"><i className="bi bi-bicycle me-2"></i>Productos</NavLink>
-            </>
+          {sesion.rol === 'vendedor' && (
+            <NavLink className="nav-link" to="/gestor/comisiones"><i className="bi bi-percent me-2"></i>Comisiones</NavLink>
           )}
         </nav>
       </aside>

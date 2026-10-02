@@ -1,8 +1,10 @@
-import { calcularMetricas, ventas } from './metricasService'
+import { calcularMetricas } from './metricasService'
+import { obtenerVentas } from '../vendedor/ventasService'
 
 function PanelInicioPage() {
   const m = calcularMetricas()
   const pesos = n => n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })
+  const ventas = obtenerVentas()
 
   return (
     <section>
