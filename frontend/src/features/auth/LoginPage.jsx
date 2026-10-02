@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { login } from './authService'
+import { login, rutaInicial } from './authService'
 import '../../shared/styles/gestor.css'
 
 function LoginPage() {
@@ -16,7 +16,7 @@ function LoginPage() {
       setError('Email o contraseña incorrectos')
       return
     }
-    navigate(sesion.rol === 'cliente' ? '/' : '/gestor')
+    navigate(rutaInicial(sesion.rol))
   }
 
   return (

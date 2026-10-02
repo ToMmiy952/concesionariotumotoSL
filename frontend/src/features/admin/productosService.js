@@ -32,3 +32,14 @@ export function editarMoto(id, datos) {
 export function eliminarMoto(id) {
   guardar(obtenerMotos().filter(m => m.id !== Number(id)))
 }
+
+export function cambiarStock(id, cantidad) {
+  guardar(obtenerMotos().map(m => {
+    if (m.id !== Number(id)) return m
+    const stock = Math.max(0, m.stock + cantidad) // nunca baja de 0
+    let estado = m.estado
+    if (stock === 0) estado = 'Agotado'
+    else if (m.estado === 'Agotado') estado = 'Disponible'
+    return { ...m, stock, estado }
+  }))
+}

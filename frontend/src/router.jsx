@@ -15,6 +15,9 @@ import PanelInicioPage from './features/admin/PanelInicioPage'
 import ProductosPage from './features/admin/ProductosPage'
 import ProductoFormPage from './features/admin/ProductoFormPage'
 import { protegerRuta, redirigirSiHaySesion } from './features/auth/loaders'
+import PedidosPage from './features/vendedor/PedidosPage'
+import StockPage from './features/vendedor/StockPage'
+import ComisionesPage from './features/vendedor/ComisionesPage'
 
 //Estos datos inicialmente estaban en app.jsx pero ahora van en router, ya que app queda limpia solo con router.
   const enlacesParaNavbar = [
@@ -88,11 +91,12 @@ export const router = createBrowserRouter([
       loader: protegerRuta(['vendedor', 'administrador']),
       children: [
         { index: true, element: <PanelInicioPage />, loader: protegerRuta(['administrador']) },
-        // { path: 'pedidos', ... }  ← Integrante 2
-        // { path: 'stock', ... }    ← Integrante 2
+        { path: 'pedidos', element: <PedidosPage /> },
+        { path: 'stock', element: <StockPage /> },
         { path: 'productos', element: <ProductosPage />, loader: protegerRuta(['administrador']) },
         { path: 'productos/nuevo', element: <ProductoFormPage />, loader: protegerRuta(['administrador']) },
         { path: 'productos/:id/editar', element: <ProductoFormPage />, loader: protegerRuta(['administrador']) },
+        { path: 'comisiones', element: <ComisionesPage />, loader: protegerRuta(['vendedor']) },
       ],
     },
 
