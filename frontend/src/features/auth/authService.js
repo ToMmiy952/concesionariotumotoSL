@@ -23,5 +23,6 @@ export function obtenerSesion() {
 export function rutaInicial(rol) {
   if (rol === 'administrador') return '/gestor'
   if (rol === 'vendedor') return '/gestor/pedidos'
+  if (rol === 'cliente') return '/'
   return '/'
 }
