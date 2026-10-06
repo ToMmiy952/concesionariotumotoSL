@@ -1,6 +1,16 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { obtenerSesion, logout } from "../../../src/features/auth/authService";
 
 function BarraBusqueda({ titulo, logo, onAbrirCarrito }) {
+    const usuario = obtenerSesion();
+    const navigate = useNavigate(); //useNavigate permite ir a otra ruta sin tener que hacer click usando un link, si no que vamos por codigo
+
+    function manejarLogout() {
+        logout();
+        navigate("/login");
+    }
+
     return (
         <header id="header-principal" className="d-flex align-items-center gap-3">
             <div className="d-flex align-items-center gap-2">
@@ -17,16 +27,59 @@ function BarraBusqueda({ titulo, logo, onAbrirCarrito }) {
                     </div>
                 </form>
             </div>
+            {/**Esto es el boton de carrito, si no hay sesion no aparece, si hay sesion aparece el boton de carrito 
+             * usuario &&, evalua, si usuario es null o undefined, no hace nada, si usuario tiene un valor, ejecuta lo que sigue, osea renderiza el codigo del carrito
+            */}
             <div className="d-flex align-items-center gap-2">
+                {usuario &&( 
                 <button className="btn btn-primary" onClick={onAbrirCarrito}>
                     <i className="bi bi-cart4"></i> {/**Logo de carrito */}
-                </button>
+                </button>)}
             </div>
-           
+
+            {/**Esto es el boton de mi cuenta, si no hay sesion aparece mi cuenta, si hay sesion muestra el nombre con un desplegable */}
             <div className="d-flex align-items-center flex-nowrap gap-2">
-                <button className="btn btn-primary">
-                    <i className="bi bi-person"></i> <span style={{ fontSize: '0.75rem', lineHeight: '1.2' }}>Mi cuenta</span> {/**Logo de inicio sesion */}
-                </button>
+                 {/**Si no hay sesion, osea nadie esta logueado, nos lleva al login, luego :( , esa seria la rama falsa
+                  * Si hay sesion, nos muestra un boton con el nombre del usuario logueado y un menu desplegable
+                  */}
+                {!usuario ? ( 
+                    <Link to="/login" className="btn btn-primary d-inline-flex align-items-center gap-1">
+                        <i className="bi bi-person"></i>
+                        <span style={{ fontSize: '0.75rem', lineHeight: '1.2' }}>Mi cuenta</span>
+                    </Link>
+                ) : (
+                    <div className="dropdown">
+                        <button
+                            className="btn btn-primary dropdown-toggle d-inline-flex align-items-center gap-1"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false" >
+                                
+                            <i className="bi bi-person-check"></i>
+                            <span style={{ fontSize: '0.75rem', lineHeight: '1.2' }}>
+                                Hola, {usuario.nombre || usuario.email}
+                            </span>
+                        </button>
+
+                        <ul className="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <Link className="dropdown-item" to="/mis-pedidos">
+                                    <i className="bi bi-bag me-2"></i>
+                                    Mis pedidos
+                                </Link>
+                            </li>
+                            <li>
+                                <hr className="dropdown-divider" />
+                            </li>
+                            <li>
+                                <button className="dropdown-item text-danger" type="button" onClick={manejarLogout}>
+                                    <i className="bi bi-box-arrow-right me-2"></i>
+                                    Cerrar sesión
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                )}
             </div>
         </header>
     );
