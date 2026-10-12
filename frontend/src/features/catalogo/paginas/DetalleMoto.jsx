@@ -1,58 +1,125 @@
 import { useParams, Link } from 'react-router';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { obtenerMotoPorId } from '../servicios/motoService';
 
-import motosData from '../../../../../backend/data/motos.json'
 function DetalleMoto() {
-    const { id } = useParams();//obtengo el id que viene en la url
-    const moto = motosData.find((item) => item.id === Number(id));//la busco en el json 
-    if (!moto) { //si la moto no esta:
-        return (
-            <div className="container my-5 text-center">
-                <h2>Moto no encontrada </h2>
-                <p className="text-secondary">
-                    No encontramos ninguna moto con el identificador ingresado.
-                </p>
-                <Link to="/catalogo" className="btn btn-primary mt-3">
-                    Volver al catálogo
-                </ Link>
-            </ div>
-        );
-    }
-    const precioFormateado = new Intl.NumberFormat('es-AR', {
-        style: 'currency',
-        currency: 'ARS',
-        maximumFractionDigits: 0
-    }).format(moto.precio);
+    const { id } = useParams(); // Obtengo el ID que viene en la URL
 
-    //creo el estado del formulario
+    // Estados para la carga asíncrona de la moto
+    const [moto, setMoto] = useState(null);
+    const [cargando, setCargando] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Estados para el formulario de consulta
     const [formulario, setFormulario] = useState({
         nombre: "",
         email: "",
         fecha: "",
         horario: "",
         comentario: ""
-    })
-    const [consultaEnviada, setConsultaEnviada] = useState(false); //Inicalmente, no muestra el mensaje de consulta enviada 
+    });
 
-    function manejarEnvio(e) { //esta es la funcion que se ejecuta al oprimir el submit, boton
-        e.preventDefault(); //para que no recargue la pagina al enviar 
+    // Objeto para guardar qué campos tienen error y sus mensajes
+    const [errores, setErrores] = useState({});
+    const [consultaEnviada, setConsultaEnviada] = useState(false);
 
-        //ahora creo la consulta que voy a guardar.
+    // Referencia al elemento <form> para enfocar el primer campo con error
+    const formularioRef = useRef(null);
+
+    // Cargar la moto usando la capa de servicio
+    useEffect(() => {
+        async function cargarDetalle() {
+            try {
+                setCargando(true);
+                setError(null);
+                const data = await obtenerMotoPorId(id);
+                setMoto(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setCargando(false);
+            }
+        }
+
+        cargarDetalle();
+    }, [id]);
+
+
+    //Aca uso un unico manejador de cambios para todos los campos del form
+    function handleChange(e) {
+        const { name, value } = e.target;
+
+        // Actualizar el valor en el estado
+        setFormulario({
+            ...formulario,
+            [name]: value
+        });
+
+        // Limpiar el error del campo a medida que el usuario escribe
+        if (errores[name]) {
+            setErrores({
+                ...errores,
+                [name]: null
+            });
+        }
+    }
+
+    function validarCampos(valores) {
+        const nuevosErrores = {};
+
+        // Comprobar campos obligatorios vacíos (trim() elimina espacios sobrantes)
+        if (!valores.nombre.trim()) {
+            nuevosErrores.nombre = "El nombre es obligatorio.";
+        }
+
+        if (!valores.email.trim()) {
+            nuevosErrores.email = "El correo electrónico es obligatorio.";
+        } else if (!valores.email.includes("@")) {
+            nuevosErrores.email = "Ingresá un correo electrónico válido.";
+        }
+
+        if (!valores.horario) {
+            nuevosErrores.horario = "Debes seleccionar un momento del día para el contacto.";
+        }
+
+        return nuevosErrores;
+    }
+    function manejarEnvio(e) {
+        e.preventDefault(); // Evita recargar la página al enviar
+
+        // Validar datos ingresados
+        const erroresDetectados = validarCampos(formulario);
+        setErrores(erroresDetectados);
+
+        // Si hay errores, enfocar el primer campo con problema y detener el envío[cite: 1]
+        const camposConError = Object.keys(erroresDetectados);
+        if (camposConError.length > 0) {
+            const primerCampo = camposConError[0];
+            if (formularioRef.current && formularioRef.current.elements[primerCampo]) {
+                formularioRef.current.elements[primerCampo].focus(); // Lleva el cursor directamente al campo faltante[cite: 1]
+            }
+            setConsultaEnviada(false);
+            return;
+        }
+        // Creo la consulta a guardar
         const nuevaConsulta = {
             idMoto: id,
-            ...formulario//uso ...formulario porque esto ya contiene todos los datos estructurados del form, es como un objeto
+            ...formulario
         };
+
         const consultasGuardadas =
-            JSON.parse(localStorage.getItem("consultas")) || []; //Se usa PARSE para leer, esto convierte el texto a un array que se pueda usar
-        //La parte de || [] es para que devuelva un array en lugar de "null" si no hay consultas guardadas
+            JSON.parse(localStorage.getItem("consultas")) || [];
+
         const consultasTotales = [
-            ...consultasGuardadas, //Los 3 puntos "..." es la clave, coloca en este array todo lo que estaba, mas la nueva consulta, 
-            nuevaConsulta          //de lo contrario pisaria los valores que ya estaban
+            ...consultasGuardadas,
+            nuevaConsulta
         ];
 
-        //Una vez actualizadas las consultas, las guardo en localStorage
-        localStorage.setItem("consultas", JSON.stringify(consultasTotales))
-        setFormulario({ //Limpiro el formulario 
+        // Guardo en localStorage
+        localStorage.setItem("consultas", JSON.stringify(consultasTotales));
+
+        // Limpio el formulario
+        setFormulario({
             nombre: "",
             email: "",
             fecha: "",
@@ -60,15 +127,44 @@ function DetalleMoto() {
             comentario: ""
         });
 
-        //Luego de guardar la consulta, muestro mensaje de exito!
+        // Muestro mensaje de éxito
         setConsultaEnviada(true);
 
         console.log("Consultas totales:", consultasTotales);
-
-
-
-
     }
+
+    // Visualización durante la carga
+    if (cargando) {
+        return (
+            <div className="container my-5 text-center">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Cargando...</span>
+                </div>
+                <p className="mt-2 text-secondary">Cargando información de la moto...</p>
+            </div>
+        );
+    }
+
+    // Si hubo error o no se encontró la moto
+    if (error || !moto) {
+        return (
+            <div className="container my-5 text-center">
+                <h2>Moto no encontrada</h2>
+                <p className="text-secondary">
+                    {error || 'No encontramos ninguna moto con el identificador ingresado.'}
+                </p>
+                <Link to="/catalogo" className="btn btn-primary mt-3">
+                    Volver al catálogo
+                </Link>
+            </div>
+        );
+    }
+
+    const precioFormateado = new Intl.NumberFormat('es-AR', {
+        style: 'currency',
+        currency: 'ARS',
+        maximumFractionDigits: 0
+    }).format(moto.precio);
 
 
     return (
@@ -117,176 +213,115 @@ function DetalleMoto() {
                 <hr className="my-5" />
 
                 {/* SECCIÓN FIJA: FORMULARIO */}
-                <div className="row justify-content-center">
-                    <div className="col-12 col-md-8">
-                        <h3 className="mb-4 text-center">
-                            ¿Te interesa esta moto? Dejanos tus datos
-                        </h3>
+                <section className="bg-light p-4 rounded shadow-sm">
+                    <h3 className="mb-3">¿Te interesa esta moto? Déjanos tus datos</h3>
 
-                        <form className="row g-3" onSubmit={manejarEnvio}>
-                            <div className="col-md-6">
-                                <label htmlFor="nombre" className="form-label">
-                                    Nombre:
-                                </label>
+                    {/* Mensaje de confirmación exitosa */}
+                    {consultaEnviada && (
+                        <div className="alert alert-success" role="alert">
+                            ¡Tu consulta fue enviada con éxito! Te contactaremos pronto.
+                        </div>
+                    )}
 
-                                <input
-                                    type="text"
-                                    id="nombre"
-                                    name="nombre-c"
-                                    className="form-control"
-                                    value={formulario.nombre}
-                                    onChange={(e) =>
-                                        setFormulario({
-                                            ...formulario,
-                                            nombre: e.target.value
-                                        })
-                                    }
-                                    required
-                                />
-                            </div>
+                    {/* Alerta general si hay campos vacíos al enviar */}
+                    {Object.keys(errores).length > 0 && (
+                        <div className="alert alert-danger" role="alert">
+                            Por favor, completa todos los campos obligatorios indicados.
+                        </div>
+                    )}
 
-                            <div className="col-md-6">
-                                <label htmlFor="email" className="form-label">
-                                    Email:
-                                </label>
+                    <form ref={formularioRef} onSubmit={manejarEnvio} noValidate>
+                        {/* Campo Nombre */}
+                        <div className="mb-3">
+                            <label htmlFor="nombre" className="form-label">
+                                Nombre <span className="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="nombre"
+                                name="nombre"
+                                className={`form-control ${errores.nombre ? 'is-invalid' : ''}`}
+                                value={formulario.nombre}
+                                onChange={handleChange}
+                            />
+                            {errores.nombre && (
+                                <div className="invalid-feedback">{errores.nombre}</div>
+                            )}
+                        </div>
 
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email-c"
-                                    className="form-control"
-                                    value={formulario.email}
-                                    onChange={(e) =>
-                                        setFormulario({
-                                            ...formulario,
-                                            email: e.target.value
-                                        })
-                                    }
-                                    required
-                                />
-                            </div>
+                        {/* Campo Email */}
+                        <div className="mb-3">
+                            <label htmlFor="email" className="form-label">
+                                Email <span className="text-danger">*</span>
+                            </label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                className={`form-control ${errores.email ? 'is-invalid' : ''}`}
+                                value={formulario.email}
+                                onChange={handleChange}
+                            />
+                            {errores.email && (
+                                <div className="invalid-feedback">{errores.email}</div>
+                            )}
+                        </div>
 
-                            <div className="col-md-6">
-                                <label htmlFor="fecha" className="form-label">
-                                    Fecha preferida de contacto:
-                                </label>
+                        {/* Campo Fecha (Opcional) */}
+                        <div className="mb-3">
+                            <label htmlFor="fecha" className="form-label">Fecha preferida de contacto:</label>
+                            <input
+                                type="date"
+                                id="fecha"
+                                name="fecha"
+                                className="form-control"
+                                value={formulario.fecha}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                                <input
-                                    type="date"
-                                    id="fecha"
-                                    name="fecha-c"
-                                    className="form-control"
-                                    value={formulario.fecha}
-                                    onChange={(e) =>
-                                        setFormulario({
-                                            ...formulario,
-                                            fecha: e.target.value
-                                        })
-                                    }
-                                />
-                            </div>
-
-                            <div className="col-md-6">
-                                <label htmlFor="horario" className="form-label">
-                                    ¿En qué momento querés que te contactemos?
-                                </label>
-
-                                <select
-                                    name="horario-c"
-                                    id="horario"
-                                    className="form-select"
-                                    value={formulario.horario}
-                                    onChange={(e) =>
-                                        setFormulario({
-                                            ...formulario,
-                                            horario: e.target.value
-                                        })
-                                    }
-                                >
-                                    <option value="" disabled>
-                                        Seleccioná un horario
-                                    </option>
-
-                                    <option value="manana">Mañana</option>
-                                    <option value="tarde">Tarde</option>
-                                    <option value="noche">Noche</option>
-                                </select>
-                            </div>
-
-                            <div className="col-12">
-                                <label htmlFor="comentario" className="form-label">
-                                    ¿Te gustaría hacer alguna aclaración antes de la llamada?
-                                </label>
-
-                                <textarea
-                                    name="comentario-c"
-                                    id="comentario"
-                                    className="form-control"
-                                    rows="3"
-                                    value={formulario.comentario}
-                                    onChange={(e) =>
-                                        setFormulario({
-                                            ...formulario,
-                                            comentario: e.target.value
-                                        })
-                                    }
-                                ></textarea>
-                            </div>
-
-                            <div className="col-12 text-center mt-4">
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary px-4 py-2"
-                                >
-                                    Enviar consulta
-                                </button>
-                            </div>
-                        </form>
-                        {/*Ventana emergente para mostrar exito de envio de consulta.*/}                                        
-                        {consultaEnviada && (
-                            <div
-                                className="modal fade show"
-                                style={{ display: "block" }}
-                                tabIndex="-1"
-                                role="dialog"
+                        {/* Campo Horario */}
+                        <div className="mb-3">
+                            <label htmlFor="horario" className="form-label">
+                                ¿En qué momento querés que te contactemos? <span className="text-danger">*</span>
+                            </label>
+                            <select
+                                id="horario"
+                                name="horario"
+                                className={`form-select ${errores.horario ? 'is-invalid' : ''}`}
+                                value={formulario.horario}
+                                onChange={handleChange}
                             >
-                                <div className="modal-dialog modal-dialog-centered">
-                                    <div className="modal-content">
+                                <option value="">Seleccioná un horario...</option>
+                                <option value="manana">Mañana</option>
+                                <option value="tarde">Tarde</option>
+                                <option value="noche">Noche</option>
+                            </select>
+                            {errores.horario && (
+                                <div className="invalid-feedback">{errores.horario}</div>
+                            )}
+                        </div>
 
-                                        <div className="modal-header">
-                                            <h5 className="modal-title">
-                                                Consulta enviada
-                                            </h5>
+                        {/* Campo Comentario (Opcional) */}
+                        <div className="mb-3">
+                            <label htmlFor="comentario" className="form-label">
+                                ¿Te gustaría hacer alguna aclaración antes de la llamada?
+                            </label>
+                            <textarea
+                                id="comentario"
+                                name="comentario"
+                                className="form-control"
+                                rows="3"
+                                value={formulario.comentario}
+                                onChange={handleChange}
+                            ></textarea>
+                        </div>
 
-                                            <button
-                                                type="button"
-                                                className="btn-close"
-                                                onClick={() => setConsultaEnviada(false)}
-                                            ></button>
-                                        </div>
-
-                                        <div className="modal-body">
-                                            <p className="mb-0">
-                                                ¡Tu consulta fue enviada con éxito, Pronto te contactaremos!
-                                            </p>
-                                        </div>
-
-                                        <div className="modal-footer">
-                                            <button
-                                                type="button"
-                                                className="btn btn-primary"
-                                                onClick={() => setConsultaEnviada(false)}
-                                            >
-                                                Aceptar
-                                            </button>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                        <button type="submit" className="btn btn-primary">
+                            Enviar consulta
+                        </button>
+                    </form>
+                </section>
             </main>
         </>
     )
