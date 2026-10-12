@@ -1,17 +1,51 @@
-import { useParams, Link } from 'react-router';
+import { useState, useEffect } from 'react';
+import { useParams, Link, useOutletContext } from 'react-router';
 import SelectorTalles from '../componentes/SelectorTalles';
-import { useState } from 'react';
 import { obtenerSesion } from '../../auth/authService';
-import accesoriosData from "../../../../../backend/data/accesorios.json";
+import { obtenerAccesorioPorId } from '../servicios/accesorioService';
 
 function DetalleAccesorio() {
     const [mostrarAlerta, setMostrarAlerta] = useState(false);
     const [talleElegido, setTalleElegido] = useState(null);
 
+    const { agregarProducto } = useOutletContext(); // Hook para agregar productos al carrito
     const { id } = useParams();
-    const accesorio = accesoriosData.find((item) => item.id === Number(id));
 
-    if (!accesorio) {
+    const [accesorio, setAccesorio] = useState(null);
+    const [cargando, setCargando] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Cargar la información mediante el service al montar o al cambiar el ID de la URL
+    useEffect(() => {
+        async function cargarDetalle() {
+            try {
+                setCargando(true);
+                setError(null);
+                const data = await obtenerAccesorioPorId(id);
+                setAccesorio(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setCargando(false);
+            }
+        }
+
+        cargarDetalle();
+    }, [id]);
+
+    // Pantalla de carga mientras espera la promesa
+    if (cargando) {
+        return (
+            <div className="container my-5 text-center">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Cargando...</span>
+                </div>
+                <p className="mt-2 text-secondary">Cargando accesorio...</p>
+            </div>
+        );
+    }
+
+    if (error ||!accesorio) {
         return (
             <div className="container my-5 text-center">
                 <h2>Accesorio no encontrado</h2>
@@ -33,7 +67,7 @@ function DetalleAccesorio() {
 
     function manejadorComprar() {
         const sesion = obtenerSesion();
-        
+
         if (!sesion) {
             setMostrarAlerta(true);
             return;
@@ -41,6 +75,16 @@ function DetalleAccesorio() {
 
         setMostrarAlerta(false);
         alert(`Compraste: ${accesorio.nombre} (Talle ${talleElegido})`);
+
+        // Agregar el producto al carrito
+        agregarProducto({
+            id: accesorio.id,
+            nombre: accesorio.nombre,
+            precio: accesorio.precio,
+            imagen: accesorio.imagen,
+            talle: talleElegido
+        });
+
     }
 
     return (

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { obtenerSesion, logout } from "../../../src/features/auth/authService";
 
-function BarraBusqueda({ titulo, logo, onAbrirCarrito }) {
+function BarraBusqueda({ titulo, logo, onAbrirCarrito, cantidadItems }) {
     const usuario = obtenerSesion();
     const navigate = useNavigate(); //useNavigate permite ir a otra ruta sin tener que hacer click usando un link, si no que vamos por codigo
 

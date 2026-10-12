@@ -1,28 +1,66 @@
-import motosData from "../../../../../backend/data/motos.json"
+import { obtenerMotos } from "../servicios/motoService"
 import ImagenSeccion from "../../../shared/components/ImagenSeccion"
 import foto from "../../../assets/fotocatalogo.png"
 import GrillaProductos from "../componentes/GrillaMotos"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 function Catalogo() {
+
+    const [motos, setMotos] = useState([]);
+    const [cargando, setCargando] = useState(true);
+    const [error, setError] = useState(null);
     const [ordenSeleccionado, setOrdenSeleccionado] = useState("Relevancia"); //Por defecto el orden es relevancia, se pone como viene en json
 
+    useEffect(() => {
+        async function cargarDatos() {
+            try {
+                setCargando(true);
+                const datos = await obtenerMotos();
+                setMotos(datos);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setCargando(false);
+            }
+        } cargarDatos();
+    }, []);
+
+
     //ahora creo una copia de motosData, porque no quiero modificar directamente el aareglo que viene del json
-    const motosOrdenadas = [...motosData];
+    const motosOrdenadas = [...motos];
 
     //Ordena de forma ascendente, si a-b da negativo, significa que b es mas cara, entonces a se coloca antes que b
     if (ordenSeleccionado === "Precio: menor a mayor") {
         motosOrdenadas.sort((a, b) => a.precio - b.precio);
     }
-    if (ordenSeleccionado === "Precio: mayor a menor"){
-        motosOrdenadas.sort((a,b)=> b.precio - a.precio)
+    if (ordenSeleccionado === "Precio: mayor a menor") {
+        motosOrdenadas.sort((a, b) => b.precio - a.precio)
     }
 
+    if (cargando) {
+        return (
+            <div className="container my-5 text-center">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Cargando motos...</span>
+                </div>
+                <p className="mt-2 text-secondary">Cargando motos...</p>
+            </div>
+        );
+    }
+    if (error) {
+        return (
+            <div className="container my-5 text-center">
+                <div className="alert alert-danger role='alert'">
+                    <strong>Ocurrió un error:</strong> {error}
+                </div>
+            </div>
+        );
+    }
 
     return <>
         {/**Todo este codigo es solo para poner el texto sobre la imagen */}
-        
-       <ImagenSeccion foto={foto} descripcion={"Motos"}/>
+
+        <ImagenSeccion foto={foto} descripcion={"Motos"} />
 
         <main>
             <h2>Elegi la moto que siempre quisiste!</h2>
@@ -43,15 +81,15 @@ function Catalogo() {
                             </button>
 
                             <ul className="dropdown-menu">
-                                <li><button class="dropdown-item" type="button" onClick={()=> setOrdenSeleccionado("Relevancia")}>Relevancia</button></li>
-                                <li><button class="dropdown-item" type="button" onClick={()=> setOrdenSeleccionado("Precio: menor a mayor")}>Precio: menor a mayor</button></li>
-                                <li><button class="dropdown-item" type="button" onClick={()=> setOrdenSeleccionado("Precio: mayor a menor")}>Precio: mayor a menor</button></li>
+                                <li><button class="dropdown-item" type="button" onClick={() => setOrdenSeleccionado("Relevancia")}>Relevancia</button></li>
+                                <li><button class="dropdown-item" type="button" onClick={() => setOrdenSeleccionado("Precio: menor a mayor")}>Precio: menor a mayor</button></li>
+                                <li><button class="dropdown-item" type="button" onClick={() => setOrdenSeleccionado("Precio: mayor a menor")}>Precio: mayor a menor</button></li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <GrillaProductos motosOrdenadas={motosOrdenadas}/>{/**Es para mostrar las tarjetas de motos */}
+                <GrillaProductos motosOrdenadas={motosOrdenadas} />{/**Es para mostrar las tarjetas de motos */}
             </section>
             <section id="como-comprar-tu-moto">
                 <h3>Pasos para comprar una moto</h3>
