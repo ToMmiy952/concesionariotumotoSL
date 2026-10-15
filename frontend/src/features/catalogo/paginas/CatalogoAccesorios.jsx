@@ -1,5 +1,4 @@
 import { obtenerAccesorios } from "../servicios/accesorioService"
-import TarjetaAccesorios from "../componentes/TarjetaAccesorios"
 import ImagenSeccion from "../../../shared/components/ImagenSeccion"
 import GrillaAccesorios from "../componentes/GrillaAccesorios"
 import foto from "../../../assets/seccionAccesorios.png"

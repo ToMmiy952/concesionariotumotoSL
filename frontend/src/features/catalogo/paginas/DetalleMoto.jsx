@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router';
 import { useState, useEffect, useRef } from 'react';
 import { obtenerMotoPorId } from '../servicios/motoService';
+import { crearReserva } from '../../vendedor/consultasService';
 
 function DetalleMoto() {
     const { id } = useParams(); // Obtengo el ID que viene en la URL
@@ -14,6 +15,7 @@ function DetalleMoto() {
     const [formulario, setFormulario] = useState({
         nombre: "",
         email: "",
+        telefono: "",
         fecha: "",
         horario: "",
         comentario: ""
@@ -22,6 +24,7 @@ function DetalleMoto() {
     // Objeto para guardar qué campos tienen error y sus mensajes
     const [errores, setErrores] = useState({});
     const [consultaEnviada, setConsultaEnviada] = useState(false);
+    const [errorReserva, setErrorReserva] = useState(null);
 
     // Referencia al elemento <form> para enfocar el primer campo con error
     const formularioRef = useRef(null);
@@ -78,6 +81,12 @@ function DetalleMoto() {
             nuevosErrores.email = "Ingresá un correo electrónico válido.";
         }
 
+        if (!valores.telefono.trim()) {
+            nuevosErrores.telefono = "El teléfono es obligatorio.";
+        } else if (valores.telefono.replace(/\D/g, "").length < 8) {
+            nuevosErrores.telefono = "Ingresá un teléfono válido (mínimo 8 dígitos).";
+        }
+
         if (!valores.horario) {
             nuevosErrores.horario = "Debes seleccionar un momento del día para el contacto.";
         }
@@ -101,36 +110,28 @@ function DetalleMoto() {
             setConsultaEnviada(false);
             return;
         }
-        // Creo la consulta a guardar
-        const nuevaConsulta = {
-            idMoto: id,
-            ...formulario
-        };
-
-        const consultasGuardadas =
-            JSON.parse(localStorage.getItem("consultas")) || [];
-
-        const consultasTotales = [
-            ...consultasGuardadas,
-            nuevaConsulta
-        ];
-
-        // Guardo en localStorage
-        localStorage.setItem("consultas", JSON.stringify(consultasTotales));
+        // Registro la reserva por 48 hs (la moto pasa a "Reservada")
+        const resultado = crearReserva(moto.id, formulario);
+        if (!resultado.ok) {
+            setErrorReserva(resultado.error);
+            setConsultaEnviada(false);
+            return;
+        }
 
         // Limpio el formulario
         setFormulario({
             nombre: "",
             email: "",
+            telefono: "",
             fecha: "",
             horario: "",
             comentario: ""
         });
 
-        // Muestro mensaje de éxito
+        // Muestro mensaje de éxito y actualizo el estado de la moto en pantalla
+        setErrorReserva(null);
         setConsultaEnviada(true);
-
-        console.log("Consultas totales:", consultasTotales);
+        obtenerMotoPorId(moto.id).then(setMoto).catch(() => {});
     }
 
     // Visualización durante la carga
@@ -214,12 +215,27 @@ function DetalleMoto() {
 
                 {/* SECCIÓN FIJA: FORMULARIO */}
                 <section className="bg-light p-4 rounded shadow-sm">
-                    <h3 className="mb-3">¿Te interesa esta moto? Déjanos tus datos</h3>
+                    <h3 className="mb-3">¿Te interesa esta moto? Reservá tu cita de compra</h3>
+                    <p className="text-muted">
+                        Dejanos tus datos y la moto queda reservada por 48 horas. Un vendedor se va a comunicar con vos.
+                    </p>
 
                     {/* Mensaje de confirmación exitosa */}
                     {consultaEnviada && (
                         <div className="alert alert-success" role="alert">
-                            ¡Tu consulta fue enviada con éxito! Te contactaremos pronto.
+                            ¡Tu reserva fue registrada! La moto queda reservada por 48 horas y te contactaremos pronto.
+                        </div>
+                    )}
+
+                    {/* Error al reservar (por ejemplo, sin stock) */}
+                    {errorReserva && (
+                        <div className="alert alert-danger" role="alert">{errorReserva}</div>
+                    )}
+
+                    {/* Sin stock no se puede reservar */}
+                    {moto.stock <= 0 && (
+                        <div className="alert alert-warning" role="alert">
+                            Esta moto está agotada por el momento, por eso no se pueden registrar nuevas reservas.
                         </div>
                     )}
 
@@ -264,6 +280,24 @@ function DetalleMoto() {
                             />
                             {errores.email && (
                                 <div className="invalid-feedback">{errores.email}</div>
+                            )}
+                        </div>
+
+                        {/* Campo Teléfono */}
+                        <div className="mb-3">
+                            <label htmlFor="telefono" className="form-label">
+                                Teléfono <span className="text-danger">*</span>
+                            </label>
+                            <input
+                                type="tel"
+                                id="telefono"
+                                name="telefono"
+                                className={`form-control ${errores.telefono ? 'is-invalid' : ''}`}
+                                value={formulario.telefono}
+                                onChange={handleChange}
+                            />
+                            {errores.telefono && (
+                                <div className="invalid-feedback">{errores.telefono}</div>
                             )}
                         </div>
 
@@ -317,8 +351,8 @@ function DetalleMoto() {
                             ></textarea>
                         </div>
 
-                        <button type="submit" className="btn btn-primary">
-                            Enviar consulta
+                        <button type="submit" className="btn btn-primary" disabled={moto.stock <= 0}>
+                            Reservar cita
                         </button>
                     </form>
                 </section>

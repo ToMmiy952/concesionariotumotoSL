@@ -7,8 +7,10 @@ import { obtenerAccesorioPorId } from '../servicios/accesorioService';
 function DetalleAccesorio() {
     const [mostrarAlerta, setMostrarAlerta] = useState(false);
     const [talleElegido, setTalleElegido] = useState(null);
+    const [mensaje, setMensaje] = useState(null); // { tipo: 'success' | 'warning', texto }
 
-    const { agregarProducto } = useOutletContext(); // Hook para agregar productos al carrito
+    // carrito y agregarProducto vienen del layout; versionStock cambia cuando se concreta una compra
+    const { agregarProducto, carrito, versionStock } = useOutletContext();
     const { id } = useParams();
 
     const [accesorio, setAccesorio] = useState(null);
@@ -31,7 +33,7 @@ function DetalleAccesorio() {
         }
 
         cargarDetalle();
-    }, [id]);
+    }, [id, versionStock]);
 
     // Pantalla de carga mientras espera la promesa
     if (cargando) {
@@ -74,7 +76,15 @@ function DetalleAccesorio() {
         }
 
         setMostrarAlerta(false);
-        alert(`Compraste: ${accesorio.nombre} (Talle ${talleElegido})`);
+
+        // No se puede superar el stock sumando lo que ya hay en el carrito (de cualquier talle)
+        const enCarrito = carrito
+            .filter((item) => item.id === accesorio.id)
+            .reduce((acc, item) => acc + item.cantidad, 0);
+        if (enCarrito >= accesorio.stock) {
+            setMensaje({ tipo: 'warning', texto: 'Ya tenés en el carrito todo el stock disponible de este accesorio.' });
+            return;
+        }
 
         // Agregar el producto al carrito
         agregarProducto({
@@ -84,7 +94,7 @@ function DetalleAccesorio() {
             imagen: accesorio.imagen,
             talle: talleElegido
         });
-
+        setMensaje({ tipo: 'success', texto: `${accesorio.nombre} (talle ${talleElegido}) se agregó al carrito.` });
     }
 
     return (
@@ -123,7 +133,7 @@ function DetalleAccesorio() {
                     <div className="mt-3">
                         {mostrarAlerta && (
                             <div className="alert alert-danger alert-dismissible fade show my-2 small" role="alert">
-                                <strong>¡Atención!</strong> Para comprar este accesorio debés iniciar sesión primero.
+                                <strong>¡Atención!</strong> Para agregar este accesorio al carrito debés iniciar sesión primero.
                                 <Link to="/login" className="alert-link ms-1">
                                     Ingresá aquí
                                 </Link>.
@@ -136,8 +146,14 @@ function DetalleAccesorio() {
                             </div>
                         )}
 
-                        <button id='comprar' type="button" className="btn btn-primary btn-lg w-100 mt-3" disabled={!talleElegido} onClick={manejadorComprar}>
-                            {talleElegido ? "Comprar" : "Elegí un talle"}
+                        {mensaje && (
+                            <div className={`alert alert-${mensaje.tipo} my-2 small`} role="alert">
+                                {mensaje.texto}
+                            </div>
+                        )}
+
+                        <button id='comprar' type="button" className="btn btn-primary btn-lg w-100 mt-3" disabled={!talleElegido || accesorio.stock <= 0} onClick={manejadorComprar}>
+                            {accesorio.stock <= 0 ? "Sin stock" : talleElegido ? "Agregar al carrito" : "Elegí un talle"}
                         </button>
                     </div>
                 </div>

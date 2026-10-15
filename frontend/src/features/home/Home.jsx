@@ -4,9 +4,10 @@ import img1pcarrusel from '../../assets/img1pcarrusel.png'
 import elegisiemprequisiste from '../../assets/elegisiemprequisiste.png'
 import img2pcarru from '../../assets/img2pcarru.png'
 import TarjetaMoto from '../catalogo/componentes/TarjetaMoto'
-import motosData from '../../../../backend/data/motos.json'
+import { obtenerMotos } from '../admin/productosService'
 import plan from '../../assets/plan.png'
 function Home() {
+    const motosData = obtenerMotos(); // mismas motos que el catálogo y el gestor
     const motosPorPagina = 4;
     const paginasCarrusel = [];
 

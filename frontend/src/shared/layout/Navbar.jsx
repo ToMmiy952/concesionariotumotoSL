@@ -1,5 +1,5 @@
 //Aca el <a href=... se convierte en NavLinkto
-import { Link, NavLink } from "react-router";
+import { NavLink } from "react-router";
 function Navbar({enlaces}) { {/**con shift+alt+f ordeno todo el codigo identacion */}
 
 

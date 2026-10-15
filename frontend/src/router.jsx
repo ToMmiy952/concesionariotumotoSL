@@ -18,6 +18,7 @@ import { protegerRuta, redirigirSiHaySesion } from './features/auth/loaders'
 import PedidosPage from './features/vendedor/PedidosPage'
 import StockPage from './features/vendedor/StockPage'
 import ComisionesPage from './features/vendedor/ComisionesPage'
+import MisPedidosPage from './features/cliente/MisPedidosPage'
 
 //Estos datos inicialmente estaban en app.jsx pero ahora van en router, ya que app queda limpia solo con router.
   const enlacesParaNavbar = [
@@ -78,6 +79,7 @@ export const router = createBrowserRouter([
                 {path: 'contacto', element: <Contacto/>},
                 {path: 'accesorios', element: <Accesorios/>},
                 {path: 'accesorios/:id', element: <DetalleAccesorio/>},
+                {path: 'mis-pedidos', element: <MisPedidosPage/>, loader: protegerRuta(['cliente'])},
                 {path: '*', element: <PaginaNoEncontrada/>}
                 //RECORDARRRRRRRRR: Agregar el * para capturar un error de pagina no encontrada
             

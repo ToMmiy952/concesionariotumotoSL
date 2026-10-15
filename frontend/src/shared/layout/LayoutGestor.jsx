@@ -19,6 +19,12 @@ function LayoutGestor() {
           <h1>TuMotoSL</h1>
         </div>
         <nav className="nav flex-column gap-1">
+          {sesion.rol === 'administrador' && (
+            <>
+              <NavLink className="nav-link" to="/gestor" end><i className="bi bi-speedometer2 me-2"></i>Panel</NavLink>
+              <NavLink className="nav-link" to="/gestor/productos"><i className="bi bi-bicycle me-2"></i>Motos</NavLink>
+            </>
+          )}
           <NavLink className="nav-link" to="/gestor/pedidos"><i className="bi bi-inbox me-2"></i>Pedidos</NavLink>
           <NavLink className="nav-link" to="/gestor/stock"><i className="bi bi-box-seam me-2"></i>Stock</NavLink>
           {sesion.rol === 'vendedor' && (
