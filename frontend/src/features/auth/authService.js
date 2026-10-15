@@ -6,18 +6,18 @@ export function login(email, password) {
   const usuario = usuarios.find(u => u.email === email && u.password === password)
   if (!usuario) return null
   const sesion = { ...usuario }
-  delete sesion.password // no guardamos la contraseña en localStorage
-  localStorage.setItem(CLAVE, JSON.stringify(sesion))
+  delete sesion.password // no guardamos la contraseña en la sesión
+  sessionStorage.setItem(CLAVE, JSON.stringify(sesion))
   return sesion
 }
 
 export function logout() {
-  localStorage.removeItem(CLAVE)
+  sessionStorage.removeItem(CLAVE)
 }
 
 export function obtenerSesion() {
-    const sesion = localStorage.getItem(CLAVE)
-    return sesion ? JSON.parse(sesion) : null
+  const sesion = sessionStorage.getItem(CLAVE)
+  return sesion ? JSON.parse(sesion) : null
 }
 
 export function rutaInicial(rol) {
