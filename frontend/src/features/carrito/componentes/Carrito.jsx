@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router'
 function Carrito({ abierto, onCerrar, carrito, eliminarProducto, cambiarCantidad, vaciarCarrito, onComprar }) {
 
   const totalPrecio = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
