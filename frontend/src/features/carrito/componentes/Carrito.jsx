@@ -1,6 +1,12 @@
 function Carrito({ abierto, onCerrar, carrito, eliminarProducto, cambiarCantidad, vaciarCarrito, onComprar }) {
 
   const totalPrecio = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+  const navigate = useNavigate();
+
+  function manejarComprar() {//es lo que se va ejecutar al apretar el boton finalizar compra, por eso no hace falta controlar si carrito esta vacio
+    onCerrar(); // Cierro la ventana
+    navigate('PantallaPago'); // Redirijo a la pantalla de pago
+  }
 
   const totalFormateado = new Intl.NumberFormat('es-AR', {
     style: 'currency',
@@ -144,7 +150,7 @@ function Carrito({ abierto, onCerrar, carrito, eliminarProducto, cambiarCantidad
                   <button
                     type="button"
                     className="btn btn-primary w-50"
-                    onClick={onComprar}
+                    onClick={manejarComprar}
                   >
                     Comprar
                   </button>

@@ -74,7 +74,7 @@ function DetalleAccesorio() {
             setMostrarAlerta(true);
             return;
         }
-
+        
         setMostrarAlerta(false);
 
         // No se puede superar el stock sumando lo que ya hay en el carrito (de cualquier talle)
