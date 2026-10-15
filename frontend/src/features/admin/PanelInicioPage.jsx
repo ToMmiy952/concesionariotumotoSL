@@ -42,13 +42,14 @@ function PanelInicioPage() {
         <div className="table-responsive">
           <table className="table table-hover align-middle mb-0">
             <thead>
-              <tr><th>Fecha</th><th>Moto</th><th>Vendedor</th><th className="text-end">Monto</th></tr>
+              <tr><th>Fecha</th><th>Detalle</th><th>Tipo</th><th>Vendedor</th><th className="text-end">Monto</th></tr>
             </thead>
             <tbody>
               {ventas.map(v => (
                 <tr key={v.id}>
                     <td>{v.fecha}</td>
-                    <td>{v.motoModelo}</td>
+                    <td>{v.descripcion ?? v.motoModelo}</td>
+                    <td>{v.tipo ?? 'Moto'}</td>
                     <td>{v.nombreVendedor}</td>
                     <td className="text-end">{pesos(v.monto)}</td>
                 </tr>

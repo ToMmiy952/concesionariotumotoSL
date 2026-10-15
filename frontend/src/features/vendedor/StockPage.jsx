@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { obtenerMotos, cambiarStock } from '../admin/productosService'
 import { registrarVenta, calcularComision } from './ventasService'
 import { obtenerSesion } from '../auth/authService'
+import { sincronizarMotosReservadas } from './consultasService'
 
 const pesos = n =>
   n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })
@@ -12,6 +13,7 @@ function StockPage() {
 
   function ajustar(id, cantidad) {
     cambiarStock(id, cantidad)
+    sincronizarMotosReservadas() // si tiene reservas abiertas vuelve a "Reservada" en lugar de "Disponible"
     setMotos(obtenerMotos())
   }
 
@@ -19,6 +21,7 @@ function StockPage() {
     const msg = `¿Registrar la venta de ${m.marca} ${m.modelo} por ${pesos(m.precio)}?\nTu comisión: ${pesos(calcularComision(m.precio))}`
     if (!confirm(msg)) return
     registrarVenta(m.id, sesion)
+    sincronizarMotosReservadas()
     setMotos(obtenerMotos())
   }
 

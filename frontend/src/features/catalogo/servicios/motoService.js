@@ -1,7 +1,11 @@
-import motos from '../../../../../backend/data/motos.json'
-//por ahora es asi porque no tenemos un backend, pero cuando lo tengamos vamos a hacer fetch a la url del backend para traer los accesorios
+import { obtenerMotos as leerMotos } from '../../admin/productosService'
+import { obtenerConsultas } from '../../vendedor/consultasService'
+//por ahora es asi porque no tenemos un backend, pero cuando lo tengamos vamos a hacer fetch a la url del backend para traer las motos
+// El catálogo lee las mismas motos que gestiona el panel (altas, bajas, stock y reservas)
+
 export async function obtenerMotos() {
-  return motos
+  obtenerConsultas() // libera las reservas vencidas antes de mostrar el estado de cada moto
+  return leerMotos()
 }
 
 export async function obtenerMotoPorId(id) {
@@ -14,4 +18,3 @@ export async function obtenerMotoPorId(id) {
   }
   return moto
 }
-
