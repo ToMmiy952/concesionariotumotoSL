@@ -18,6 +18,7 @@ import { protegerRuta, redirigirSiHaySesion } from './features/auth/loaders'
 import PedidosPage from './features/vendedor/PedidosPage'
 import StockPage from './features/vendedor/StockPage'
 import ComisionesPage from './features/vendedor/ComisionesPage'
+import PantallaPago from './features/carrito/paginas/PantallaPago'
 
 //Estos datos inicialmente estaban en app.jsx pero ahora van en router, ya que app queda limpia solo con router.
   const enlacesParaNavbar = [
@@ -26,8 +27,7 @@ import ComisionesPage from './features/vendedor/ComisionesPage'
     {id: 3, texto: "Accesorios", destino:"/accesorios"},
     { id: 4, texto: "Planes de ahorro", destino: "/planahorro" },
     { id: 5, texto: "Servicio tecnico", destino: "/serviciotecnico" },
-    { id: 6, texto: "Contacto", destino: "/contacto" },
-    { id: 7, texto: "Centro de ayuda", destino: "#" }
+    { id: 6, texto: "Contacto", destino: "/contacto" }
   ]
   {/*-------------------------------------------*/ }
 
@@ -78,6 +78,7 @@ export const router = createBrowserRouter([
                 {path: 'contacto', element: <Contacto/>},
                 {path: 'accesorios', element: <Accesorios/>},
                 {path: 'accesorios/:id', element: <DetalleAccesorio/>},
+                {path: 'PantallaPago', element: <PantallaPago/>},
                 {path: '*', element: <PaginaNoEncontrada/>}
                 //RECORDARRRRRRRRR: Agregar el * para capturar un error de pagina no encontrada
             

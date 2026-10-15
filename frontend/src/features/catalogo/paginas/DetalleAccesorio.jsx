@@ -72,9 +72,9 @@ function DetalleAccesorio() {
             setMostrarAlerta(true);
             return;
         }
-
+        
         setMostrarAlerta(false);
-        alert(`Compraste: ${accesorio.nombre} (Talle ${talleElegido})`);
+        alert(`Agregate al carrito con exito!!: ${accesorio.nombre} (Talle ${talleElegido})`);
 
         // Agregar el producto al carrito
         agregarProducto({

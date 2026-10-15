@@ -1,6 +1,14 @@
+import {useNavigate} from "react-router";
+import PantallaPago from "../paginas/PantallaPago";
 function Carrito({ abierto, onCerrar, carrito, eliminarProducto, vaciarCarrito }) {
 
   const totalPrecio = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+  const navigate = useNavigate();
+
+  function manejarComprar() {//es lo que se va ejecutar al apretar el boton finalizar compra, por eso no hace falta controlar si carrito esta vacio
+    onCerrar(); // Cierro la ventana
+    navigate('PantallaPago'); // Redirijo a la pantalla de pago
+  }
 
   const totalFormateado = new Intl.NumberFormat('es-AR', {
     style: 'currency',
@@ -124,7 +132,7 @@ function Carrito({ abierto, onCerrar, carrito, eliminarProducto, vaciarCarrito }
                   <button
                     type="button"
                     className="btn btn-primary w-50"
-                    onClick={() => alert('¡Compra procesada con éxito!')}
+                    onClick={manejarComprar}
                   >
                     Comprar
                   </button>
