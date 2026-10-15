@@ -1,6 +1,4 @@
-import {useNavigate} from "react-router";
-import PantallaPago from "../paginas/PantallaPago";
-function Carrito({ abierto, onCerrar, carrito, eliminarProducto, vaciarCarrito }) {
+function Carrito({ abierto, onCerrar, carrito, eliminarProducto, cambiarCantidad, vaciarCarrito, onComprar }) {
 
   const totalPrecio = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
   const navigate = useNavigate();
@@ -88,9 +86,29 @@ function Carrito({ abierto, onCerrar, carrito, eliminarProducto, vaciarCarrito }
                               Talle: {item.talle}
                             </small>
                           )}
-                          <small className="text-secondary">
-                            Cant: {item.cantidad} x ${item.precio.toLocaleString('es-AR')}
+                          <small className="text-secondary d-block">
+                            ${item.precio.toLocaleString('es-AR')} c/u
                           </small>
+                          <div className="d-flex align-items-center gap-2 mt-1">
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-secondary py-0 px-2"
+                              aria-label="Restar una unidad"
+                              disabled={item.cantidad <= 1}
+                              onClick={() => cambiarCantidad(item.id, item.talle, -1)}
+                            >
+                              <i className="bi bi-dash"></i>
+                            </button>
+                            <span>{item.cantidad}</span>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-secondary py-0 px-2"
+                              aria-label="Sumar una unidad"
+                              onClick={() => cambiarCantidad(item.id, item.talle, 1)}
+                            >
+                              <i className="bi bi-plus"></i>
+                            </button>
+                          </div>
                         </div>
                       </div>
 

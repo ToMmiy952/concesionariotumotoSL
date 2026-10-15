@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { obtenerConsultas, actualizarConsulta, ESTADOS } from './consultasService'
+import { obtenerConsultas, actualizarConsulta, ESTADOS, ESTADOS_ABIERTOS } from './consultasService'
 import { obtenerMoto } from '../admin/productosService'
 import { registrarVenta } from './ventasService'
 import { obtenerSesion } from '../auth/authService'
+import { formatearFechaHora } from '../../shared/utils/fechas'
 
 const COLOR_ESTADO = {
   Pendiente: 'text-bg-warning',
@@ -10,7 +11,10 @@ const COLOR_ESTADO = {
   'En trámite': 'text-bg-primary',
   Entregado: 'text-bg-success',
   Cerrado: 'text-bg-secondary',
+  Vencida: 'text-bg-danger',
 }
+
+const HORARIOS = { manana: 'Mañana', tarde: 'Tarde', noche: 'Noche' }
 
 // el paso siguiente de los dos primeros estados (después de "En trámite" hay dos caminos)
 const SIGUIENTE = {
@@ -72,6 +76,8 @@ function PedidosPage() {
         {visibles.map(c => {
           const moto = obtenerMoto(c.idMoto)
           const paso = SIGUIENTE[c.estado]
+          const abierta = ESTADOS_ABIERTOS.includes(c.estado)
+          const sinStock = abierta && moto && moto.stock === 0
           return (
             <div className="col-12 col-xl-6" key={c.id}>
               <div className="tarjeta-tabla h-100">
@@ -79,6 +85,7 @@ function PedidosPage() {
                   <div>
                     <h3 className="h6 mb-0">{c.nombre}</h3>
                     <small className="text-muted">{c.email}</small>
+                    {c.telefono && <small className="text-muted d-block">Tel: {c.telefono}</small>}
                   </div>
                   <span className={`badge ${COLOR_ESTADO[c.estado]}`}>{c.estado}</span>
                 </div>
@@ -86,8 +93,24 @@ function PedidosPage() {
                 <p className="mb-1"><i className="bi bi-bicycle me-2"></i>
                   {moto ? `${moto.marca} ${moto.modelo}` : 'Moto no disponible'}
                 </p>
-                <p className="mb-1"><i className="bi bi-calendar-event me-2"></i>{c.fecha} {c.horario}</p>
+                <p className="mb-1">
+                  <i className="bi bi-calendar-event me-2"></i>
+                  {c.fecha || 'Sin fecha preferida'} · {HORARIOS[c.horario] ?? c.horario}
+                </p>
+                {c.fechaVencimiento && (
+                  <p className="mb-1 text-muted">
+                    <i className="bi bi-hourglass-split me-2"></i>
+                    {abierta ? 'La reserva vence' : 'Venció'}: {formatearFechaHora(c.fechaVencimiento)}
+                  </p>
+                )}
                 <p className="mb-3"><i className="bi bi-chat-left-text me-2"></i>{c.comentario || 'Sin comentario'}</p>
+
+                {sinStock && (
+                  <div className="alert alert-warning py-2">
+                    <i className="bi bi-exclamation-triangle me-2"></i>
+                    Esta moto se quedó sin stock: comunicate con el cliente para avisarle.
+                  </div>
+                )}
 
                 <label className="form-label">Notas de seguimiento</label>
                 <textarea
@@ -105,10 +128,17 @@ function PedidosPage() {
                     </button>
                   )}
 
+                  {/* Pendiente y Contactado también pueden cerrarse sin venta */}
+                  {paso && (
+                    <button className="btn btn-outline-secondary" onClick={() => cerrarPedido(c)}>
+                      <i className="bi bi-x-circle me-1"></i>Cerrar pedido
+                    </button>
+                  )}
+
                   {/* En trámite: dos caminos */}
                   {c.estado === 'En trámite' && (
                     <>
-                      <button className="btn btn-success" onClick={() => concretarVenta(c)}>
+                      <button className="btn btn-success" disabled={sinStock} onClick={() => concretarVenta(c)}>
                         <i className="bi bi-cart-check me-1"></i>Concretar venta
                       </button>
                       <button className="btn btn-outline-secondary" onClick={() => cerrarPedido(c)}>
@@ -125,6 +155,11 @@ function PedidosPage() {
                   {c.estado === 'Cerrado' && (
                     <div className="alert alert-secondary py-2 mb-0 w-100">
                       <i className="bi bi-x-circle me-2"></i>Pedido cerrado sin venta
+                    </div>
+                  )}
+                  {c.estado === 'Vencida' && (
+                    <div className="alert alert-danger py-2 mb-0 w-100">
+                      <i className="bi bi-clock-history me-2"></i>La reserva venció a las 48 hs y la moto quedó liberada
                     </div>
                   )}
                 </div>

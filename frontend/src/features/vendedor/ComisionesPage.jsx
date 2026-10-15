@@ -1,5 +1,6 @@
 import { obtenerVentas, PORCENTAJE_COMISION } from './ventasService'
 import { obtenerSesion } from '../auth/authService'
+import { mesActual } from '../../shared/utils/fechas'
 
 const pesos = n =>
   n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })
@@ -7,8 +8,7 @@ const pesos = n =>
 function ComisionesPage() {
   const sesion = obtenerSesion()
   const mias = obtenerVentas().filter(v => v.idVendedor === sesion.id)
-  const mes = new Date().toISOString().slice(0, 7)
-  const delMes = mias.filter(v => v.fecha.startsWith(mes))
+  const delMes = mias.filter(v => v.fecha.startsWith(mesActual()))
 
   const totalMes = delMes.reduce((acc, v) => acc + v.comision, 0)
   const totalHistorico = mias.reduce((acc, v) => acc + v.comision, 0)

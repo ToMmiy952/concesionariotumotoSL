@@ -33,6 +33,10 @@ export function eliminarMoto(id) {
   guardar(obtenerMotos().filter(m => m.id !== Number(id)))
 }
 
+export function setEstadoMoto(id, estado) {
+  guardar(obtenerMotos().map(m => m.id === Number(id) ? { ...m, estado } : m))
+}
+
 export function cambiarStock(id, cantidad) {
   guardar(obtenerMotos().map(m => {
     if (m.id !== Number(id)) return m

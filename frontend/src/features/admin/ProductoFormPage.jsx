@@ -15,7 +15,12 @@ function ProductoFormPage() {
 
   function manejarSubmit(e) {
     e.preventDefault()
-    const listo = { ...datos, precio: Number(datos.precio), stock: Number(datos.stock) }
+    const stock = Number(datos.stock)
+    // el estado acompaña al stock: sin unidades queda Agotado y con unidades deja de estarlo
+    let estado = datos.estado
+    if (stock === 0) estado = 'Agotado'
+    else if (estado === 'Agotado') estado = 'Disponible'
+    const listo = { ...datos, precio: Number(datos.precio), stock, estado }
     if (id) editarMoto(id, listo)
     else crearMoto(listo)
     navigate('/gestor/productos')
@@ -50,8 +55,8 @@ function ProductoFormPage() {
   <label className="form-label">Estado</label>
   <select name="estado" className="form-select" value={datos.estado} onChange={manejarCambio}>
     <option>Disponible</option>
+    <option>Reservada</option>
     <option>Agotado</option>
-    <option>Próximamente</option>
   </select>
 </div>
 <div className="col-12">

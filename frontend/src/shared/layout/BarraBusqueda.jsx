@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { obtenerSesion, logout } from "../../../src/features/auth/authService";
+import { obtenerSesion, logout, rutaInicial } from "../../features/auth/authService";
 
 function BarraBusqueda({ titulo, logo, onAbrirCarrito, cantidadItems }) {
     const usuario = obtenerSesion();
@@ -32,8 +31,13 @@ function BarraBusqueda({ titulo, logo, onAbrirCarrito, cantidadItems }) {
             */}
             <div className="d-flex align-items-center gap-2">
                 {usuario &&( 
-                <button className="btn btn-primary" onClick={onAbrirCarrito}>
+                <button className="btn btn-primary position-relative" onClick={onAbrirCarrito} aria-label="Abrir carrito">
                     <i className="bi bi-cart4"></i> {/**Logo de carrito */}
+                    {cantidadItems > 0 && (
+                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {cantidadItems}
+                        </span>
+                    )}
                 </button>)}
             </div>
 
@@ -63,10 +67,17 @@ function BarraBusqueda({ titulo, logo, onAbrirCarrito, cantidadItems }) {
 
                         <ul className="dropdown-menu dropdown-menu-end">
                             <li>
-                                <Link className="dropdown-item" to="/mis-pedidos">
-                                    <i className="bi bi-bag me-2"></i>
-                                    Mis pedidos
-                                </Link>
+                                {usuario.rol === 'cliente' ? (
+                                    <Link className="dropdown-item" to="/mis-pedidos">
+                                        <i className="bi bi-bag me-2"></i>
+                                        Mis pedidos
+                                    </Link>
+                                ) : (
+                                    <Link className="dropdown-item" to={rutaInicial(usuario.rol)}>
+                                        <i className="bi bi-speedometer2 me-2"></i>
+                                        Ir al panel de gestión
+                                    </Link>
+                                )}
                             </li>
                             <li>
                                 <hr className="dropdown-divider" />
