@@ -2,6 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import { env } from './config/env.js';
 import authRoutes from './routes/auth.routes.js';
+import motosRoutes from './routes/motos.routes.js';
+import accesoriosRoutes from './routes/accesorios.routes.js';
+import carritoRoutes from './routes/carrito.routes.js';
+import reservasRoutes from './routes/reservas.routes.js';
 
 const app = express();
 
@@ -13,8 +17,11 @@ app.use(cors({
 // 2. Middleware para parsear el cuerpo de las peticiones en JSON
 app.use(express.json());
 
-app.use('/api/auth', authRoutes); // Prefijo para autenticación (/api/auth/login, /api/auth/registro, etc.)
-
+app.use('/api/v1/auth', authRoutes); // Prefijo para autenticación (/api/auth/login, /api/auth/registro, etc.)
+app.use('/api/v1/motos', motosRoutes); // Prefijo para rutas de motos (/api/motos, /api/motos/:id, etc.)
+app.use('/api/v1/accesorios', accesoriosRoutes); // Prefijo para rutas de accesorios (/api/accesorios, /api/accesorios/:id, etc.)
+app.use('/api/v1/carrito', carritoRoutes); // Prefijo para rutas de carrito (/api/carrito, /api/carrito/items, etc.)
+app.use('/api/v1/reservas', reservasRoutes); // Prefijo para rutas de reservas (/api/reservas, /api/reservas/:id, etc.)
 // 3. Ruta base de prueba de estado de la API
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, mensaje: 'API tuMotoSL funcionando correctamente' });
