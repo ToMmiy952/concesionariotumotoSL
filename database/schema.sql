@@ -23,7 +23,7 @@ CREATE TABLE usuarios (
     id_usuario INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    password_hash VARCHAR(150) NOT NULL,
+    password VARCHAR(150) NOT NULL,
     rol rol_usuario NOT NULL,
     esta_activo BOOLEAN NOT NULL DEFAULT true,
     creado_en TIMESTAMP NOT NULL DEFAULT now()
