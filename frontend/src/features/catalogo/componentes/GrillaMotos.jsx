@@ -3,7 +3,7 @@ function GrillaProductos({motosOrdenadas}){
     
     return(
         <>
-        <div className="catalogo-motos mt-3">
+        <div className="row g-4 mt-3">
                     {motosOrdenadas.map((moto) => (
                         <TarjetaMoto
                             key={moto.id}

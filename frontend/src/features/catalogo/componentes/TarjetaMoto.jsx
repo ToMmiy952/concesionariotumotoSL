@@ -3,7 +3,7 @@ import { Link } from "react-router";
 function TarjetaMoto({ id, marca, modelo, precio, cilindrada, imagen }) {
     
     return (
-        <div>
+        <div className="col-12 col-sm-6 col-lg-3">
             <Link
                 to={`/catalogo/${id}`} //SI o SI son esas comillas dobladas, las simples no funcionan
                 className="tarjeta-moto text-decoration-none d-block h-100 p-3 bg-white rounded shadow-sm text-dark position-relative text-center"
