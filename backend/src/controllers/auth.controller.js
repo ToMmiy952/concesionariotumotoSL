@@ -24,7 +24,7 @@ export const authController = {
 
         // Insertar usuario padre
         const userResult = await client.query(
-          `INSERT INTO usuarios (nombre, email, password_hash, rol)
+          `INSERT INTO usuarios (nombre, email, password, rol)
            VALUES ($1, $2, $3, $4)
            RETURNING id_usuario, nombre, email, rol, esta_activo`,
           [nombre, email, passwordHash, rol]
@@ -73,7 +73,7 @@ export const authController = {
 
       // Buscar al usuario por email en PostgreSQL
       const result = await pool.query(
-        'SELECT id_usuario, nombre, email, password_hash, rol, esta_activo FROM usuarios WHERE email = $1',
+        'SELECT id_usuario, nombre, email, password, rol, esta_activo FROM usuarios WHERE email = $1',
         [email]
       );
 
@@ -88,7 +88,7 @@ export const authController = {
       }
 
       // Comparar contraseña plana ingresada contra el hash guardado
-      const esValida = await bcrypt.compare(password, usuario.password_hash);
+      const esValida = await bcrypt.compare(password, usuario.password);
       if (!esValida) {
         return res.status(401).json({ error: 'Credenciales inválidas' });
       }
