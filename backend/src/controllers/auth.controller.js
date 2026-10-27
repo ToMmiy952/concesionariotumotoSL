@@ -4,15 +4,28 @@ import { pool } from '../config/db.js';
 import { env } from '../config/env.js';
 
 export const authController = {
-  // 1. Registro de usuarios (Clientes o Vendedores)
+  // 1. Registro público de clientes
   async registrar(req, res, next) {
-    const { nombre, email, password, rol = 'CLIENTE', telefono, direccion, cod_postal, provincia } = req.body;
+    const { nombre, email, password, telefono, direccion, cod_postal, provincia } = req.body;
 
     try {
       // Validaciones básicas de campos obligatorios
       if (!nombre || !email || !password) {
         return res.status(400).json({ error: 'Nombre, email y contraseña son obligatorios' });
       }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ error: 'El email no tiene un formato válido' });
+      }
+      if (String(password).length < 6) {
+        return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+      }
+      if (cod_postal !== undefined && !(Number.isInteger(cod_postal) && cod_postal >= 0 && cod_postal <= 99999)) {
+        return res.status(400).json({ error: 'El código postal debe ser un número válido' });
+      }
+
+      // El registro público solo crea clientes: vendedores y administradores los da de alta el admin
+      const rol = 'CLIENTE';
 
       // Hashear la contraseña antes de guardarla
       const passwordHash = await bcrypt.hash(password, 10);
@@ -24,7 +37,7 @@ export const authController = {
 
         // Insertar usuario padre
         const userResult = await client.query(
-          `INSERT INTO usuarios (nombre, email, password_hash, rol)
+          `INSERT INTO usuarios (nombre, email, password, rol)
            VALUES ($1, $2, $3, $4)
            RETURNING id_usuario, nombre, email, rol, esta_activo`,
           [nombre, email, passwordHash, rol]
@@ -37,7 +50,7 @@ export const authController = {
           await client.query(
             `INSERT INTO clientes (id_usuario, telefono, direccion, cod_postal, provincia)
              VALUES ($1, $2, $3, $4, $5)`,
-            [nuevoUsuario.id_usuario, telefono || null, direccion || '', cod_postal || 0, provincia || '']
+            [nuevoUsuario.id_usuario, telefono || null, direccion || 'Sin especificar', cod_postal || 0, provincia || 'Sin especificar']
           );
         }
 
@@ -73,7 +86,7 @@ export const authController = {
 
       // Buscar al usuario por email en PostgreSQL
       const result = await pool.query(
-        'SELECT id_usuario, nombre, email, password_hash, rol, esta_activo FROM usuarios WHERE email = $1',
+        'SELECT id_usuario, nombre, email, password, rol, esta_activo FROM usuarios WHERE email = $1',
         [email]
       );
 
@@ -88,7 +101,7 @@ export const authController = {
       }
 
       // Comparar contraseña plana ingresada contra el hash guardado
-      const esValida = await bcrypt.compare(password, usuario.password_hash);
+      const esValida = await bcrypt.compare(password, usuario.password);
       if (!esValida) {
         return res.status(401).json({ error: 'Credenciales inválidas' });
       }
