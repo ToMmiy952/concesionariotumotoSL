@@ -6,10 +6,16 @@
 -- llenado de usuarios (Clientes, Vendedores y Administradores)
 -- Contraseña '123' encriptada con hash bcryptjs
 INSERT INTO usuarios (id_usuario, nombre, email, password, rol, esta_activo) OVERRIDING SYSTEM VALUE VALUES --se agrega para poder enviar id manualmente usando el script
-(101, 'Juan Pérez', 'cliente@tumoto.com', '$2a$10$2B2U8eC2p8A0L4H9T1Z70uV3fX.Y0Q4/9aN.mO3aR7pP1e3K5s6M.', 'CLIENTE', true),
-(102, 'Carlos Vendedor', 'vendedor@tumoto.com', '$2a$10$2B2U8eC2p8A0L4H9T1Z70uV3fX.Y0Q4/9aN.mO3aR7pP1e3K5s6M.', 'VENDEDOR', true),
-(103, 'Ana Administradora', 'admin@tumoto.com', '$2a$10$2B2U8eC2p8A0L4H9T1Z70uV3fX.Y0Q4/9aN.mO3aR7pP1e3K5s6M.', 'ADMINISTRADOR', true)
+(101, 'Juan Pérez', 'cliente@tumoto.com', '$2b$10$8lvL498ttcsbJ8.5TVO8C.4HD9vgv0MC14emE1Dgyv/Sm8Bcb44e.', 'CLIENTE', true),
+(102, 'Carlos Vendedor', 'vendedor@tumoto.com', '$2b$10$8lvL498ttcsbJ8.5TVO8C.4HD9vgv0MC14emE1Dgyv/Sm8Bcb44e.', 'VENDEDOR', true),
+(103, 'Ana Administradora', 'admin@tumoto.com', '$2b$10$8lvL498ttcsbJ8.5TVO8C.4HD9vgv0MC14emE1Dgyv/Sm8Bcb44e.', 'ADMINISTRADOR', true)
 ON CONFLICT (id_usuario) DO NOTHING;
+
+INSERT INTO clientes (id_usuario, telefono, direccion, cod_postal, provincia) VALUES
+(101, '1123456789', 'Av. Siempre Viva 742', 1000, 'Buenos Aires')
+ON CONFLICT (id_usuario) DO NOTHING;
+INSERT INTO vendedores (id_usuario, fecha_contratacion) VALUES (102, '2024-01-15') ON CONFLICT (id_usuario) DO NOTHING;
+INSERT INTO administradores (id_usuario) VALUES (103) ON CONFLICT (id_usuario) DO NOTHING;
 
 -- Sincronizar secuencia de usuarios
 SELECT setval(pg_get_serial_sequence('usuarios', 'id_usuario'), COALESCE(MAX(id_usuario), 1)) FROM usuarios;
