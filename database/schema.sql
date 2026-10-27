@@ -12,6 +12,11 @@ DROP TABLE IF EXISTS vendedores CASCADE;
 DROP TABLE IF EXISTS clientes CASCADE;
 DROP TABLE IF EXISTS usuarios CASCADE;
 
+DROP TYPE IF EXISTS estado_reserva;
+DROP TYPE IF EXISTS estado_moto;
+DROP TYPE IF EXISTS tipo_producto;
+DROP TYPE IF EXISTS rol_usuario;
+
 -- ENUMs para tipos fijos 
 CREATE TYPE rol_usuario AS ENUM ('CLIENTE', 'VENDEDOR', 'ADMINISTRADOR');
 CREATE TYPE tipo_producto AS ENUM ('MOTO', 'ACCESORIO');

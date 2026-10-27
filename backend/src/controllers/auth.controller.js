@@ -4,15 +4,28 @@ import { pool } from '../config/db.js';
 import { env } from '../config/env.js';
 
 export const authController = {
-  // 1. Registro de usuarios (Clientes o Vendedores)
+  // 1. Registro público de clientes
   async registrar(req, res, next) {
-    const { nombre, email, password, rol = 'CLIENTE', telefono, direccion, cod_postal, provincia } = req.body;
+    const { nombre, email, password, telefono, direccion, cod_postal, provincia } = req.body;
 
     try {
       // Validaciones básicas de campos obligatorios
       if (!nombre || !email || !password) {
         return res.status(400).json({ error: 'Nombre, email y contraseña son obligatorios' });
       }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ error: 'El email no tiene un formato válido' });
+      }
+      if (String(password).length < 6) {
+        return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+      }
+      if (cod_postal !== undefined && !(Number.isInteger(cod_postal) && cod_postal >= 0 && cod_postal <= 99999)) {
+        return res.status(400).json({ error: 'El código postal debe ser un número válido' });
+      }
+
+      // El registro público solo crea clientes: vendedores y administradores los da de alta el admin
+      const rol = 'CLIENTE';
 
       // Hashear la contraseña antes de guardarla
       const passwordHash = await bcrypt.hash(password, 10);
@@ -37,7 +50,7 @@ export const authController = {
           await client.query(
             `INSERT INTO clientes (id_usuario, telefono, direccion, cod_postal, provincia)
              VALUES ($1, $2, $3, $4, $5)`,
-            [nuevoUsuario.id_usuario, telefono || null, direccion || '', cod_postal || 0, provincia || '']
+            [nuevoUsuario.id_usuario, telefono || null, direccion || 'Sin especificar', cod_postal || 0, provincia || 'Sin especificar']
           );
         }
 

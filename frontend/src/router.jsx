@@ -10,6 +10,7 @@ import Accesorios from './features/catalogo/paginas/CatalogoAccesorios'
 import PaginaNoEncontrada from './shared/paginas/PaginaNoEncontrada'
 import DetalleAccesorio from './features/catalogo/paginas/DetalleAccesorio'
 import LoginPage from './features/auth/LoginPage'
+import RegistroPage from './features/auth/RegistroPage'
 import LayoutGestor from './shared/layout/LayoutGestor'
 import PanelInicioPage from './features/admin/PanelInicioPage'
 import ProductosPage from './features/admin/ProductosPage'
@@ -88,6 +89,7 @@ export const router = createBrowserRouter([
     },
 
     { path: '/login', element: <LoginPage />, loader: redirigirSiHaySesion },
+    { path: '/registro', element: <RegistroPage />, loader: redirigirSiHaySesion },
     {
       path: '/gestor',
       element: <LayoutGestor />,
