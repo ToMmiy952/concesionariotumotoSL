@@ -67,12 +67,12 @@ export const ventasRepository = {
 
       if (idReserva) {
         const reserva = await db.query(
-          'SELECT id_moto, estado_reserva FROM reservas WHERE id_reserva = $1 FOR UPDATE',
+          'SELECT id_moto, estado_reserva, fecha_vencimiento > NOW() AS en_plazo FROM reservas WHERE id_reserva = $1 FOR UPDATE',
           [idReserva]
         );
         if (reserva.rows.length === 0) return { resultado: 'reserva_inexistente' };
         if (reserva.rows[0].id_moto !== idMoto) return { resultado: 'reserva_ajena' };
-        if (reserva.rows[0].estado_reserva !== 'vigente') return { resultado: 'reserva_no_vigente' };
+        if (reserva.rows[0].estado_reserva !== 'vigente' || !reserva.rows[0].en_plazo) return { resultado: 'reserva_no_vigente' };
 
         await db.query(`UPDATE reservas SET estado_reserva = 'concretada' WHERE id_reserva = $1`, [idReserva]);
       }

@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router';
 import { useState, useEffect, useRef } from 'react';
 import { obtenerMotoPorId } from '../servicios/motoService';
-import { crearReserva } from '../../vendedor/consultasService';
+import { crearReserva } from '../../vendedor/reservasService';
 
 function DetalleMoto() {
     const { id } = useParams(); // Obtengo el ID que viene en la URL
@@ -25,6 +25,7 @@ function DetalleMoto() {
     const [errores, setErrores] = useState({});
     const [consultaEnviada, setConsultaEnviada] = useState(false);
     const [errorReserva, setErrorReserva] = useState(null);
+    const [enviando, setEnviando] = useState(false);
 
     // Referencia al elemento <form> para enfocar el primer campo con error
     const formularioRef = useRef(null);
@@ -93,8 +94,9 @@ function DetalleMoto() {
 
         return nuevosErrores;
     }
-    function manejarEnvio(e) {
+    async function manejarEnvio(e) {
         e.preventDefault(); // Evita recargar la página al enviar
+        if (enviando) return;
 
         // Validar datos ingresados
         const erroresDetectados = validarCampos(formulario);
@@ -110,8 +112,12 @@ function DetalleMoto() {
             setConsultaEnviada(false);
             return;
         }
-        // Registro la reserva por 48 hs (la moto pasa a "Reservada")
-        const resultado = crearReserva(moto.id, formulario);
+        // Registro la reserva por 48 hs en la API (la moto pasa a "Reservada" si se agotan las unidades)
+        setEnviando(true);
+        setConsultaEnviada(false);
+        setErrorReserva(null);
+        const resultado = await crearReserva(moto.id_producto, formulario);
+        setEnviando(false);
         if (!resultado.ok) {
             setErrorReserva(resultado.error);
             setConsultaEnviada(false);
@@ -131,7 +137,7 @@ function DetalleMoto() {
         // Muestro mensaje de éxito y actualizo el estado de la moto en pantalla
         setErrorReserva(null);
         setConsultaEnviada(true);
-        obtenerMotoPorId(moto.id).then(setMoto).catch(() => {});
+        obtenerMotoPorId(moto.id_producto).then(setMoto).catch(() => {});
     }
 
     // Visualización durante la carga
@@ -351,8 +357,8 @@ function DetalleMoto() {
                             ></textarea>
                         </div>
 
-                        <button type="submit" className="btn btn-primary" disabled={moto.stock <= 0}>
-                            Reservar cita
+                        <button type="submit" className="btn btn-primary" disabled={moto.stock <= 0 || enviando}>
+                            {enviando ? 'Enviando...' : 'Reservar cita'}
                         </button>
                     </form>
                 </section>
