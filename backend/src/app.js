@@ -6,6 +6,9 @@ import motosRoutes from './routes/motos.routes.js';
 import accesoriosRoutes from './routes/accesorios.routes.js';
 import carritoRoutes from './routes/carrito.routes.js';
 import reservasRoutes from './routes/reservas.routes.js';
+import usuariosRoutes from './routes/usuarios.routes.js';
+import ventasRoutes from './routes/ventas.routes.js';
+import metricasRoutes from './routes/metricas.routes.js';
 import { manejarErrores } from './middlewares/manejarErrores.js';
 
 const app = express();
@@ -23,6 +26,9 @@ app.use('/api/v1/motos', motosRoutes); // Prefijo para rutas de motos (/api/moto
 app.use('/api/v1/accesorios', accesoriosRoutes); // Prefijo para rutas de accesorios (/api/accesorios, /api/accesorios/:id, etc.)
 app.use('/api/v1/carrito', carritoRoutes); // Prefijo para rutas de carrito (/api/carrito, /api/carrito/items, etc.)
 app.use('/api/v1/reservas', reservasRoutes); // Prefijo para rutas de reservas (/api/reservas, /api/reservas/:id, etc.)
+app.use('/api/v1/usuarios', usuariosRoutes); // Gestión de usuarios (admin)
+app.use('/api/v1/ventas', ventasRoutes); // Ventas online y presenciales
+app.use('/api/v1/metricas', metricasRoutes); // Reportes de vendedor y admin
 // 3. Ruta base de prueba de estado de la API
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, mensaje: 'API tuMotoSL funcionando correctamente' });

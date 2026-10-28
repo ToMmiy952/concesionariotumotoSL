@@ -76,3 +76,17 @@ ON CONFLICT (id_producto) DO NOTHING;
 -- Sincronizar secuencia autoincremental de productos
 SELECT setval(pg_get_serial_sequence('productos', 'id_producto'), COALESCE(MAX(id_producto), 1)) FROM productos;
 
+
+
+-- llenado de ventas de ejemplo (dos ventas de motos del vendedor, para que las métricas tengan datos)
+WITH nuevas AS (
+    INSERT INTO ventas (fecha, monto_total, tipo_venta, id_vendedor)
+    SELECT * FROM (VALUES
+        (now() - interval '40 days', 3600000.00, 'Moto', 102),
+        (now() - interval '10 days', 5800000.00, 'Moto', 102)
+    ) AS v(fecha, monto_total, tipo_venta, id_vendedor)
+    WHERE NOT EXISTS (SELECT 1 FROM ventas)
+    RETURNING id_venta, monto_total
+)
+INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario_historico)
+SELECT id_venta, CASE WHEN monto_total = 3600000.00 THEN 6 ELSE 4 END, 1, monto_total FROM nuevas;
