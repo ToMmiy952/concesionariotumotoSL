@@ -3,13 +3,7 @@ import { pool } from '../config/db.js';
 export const reservasController = {
   // 1. POST /api/v1/reservas (Público - Reserva de cita por 48 hs)
   async crear(req, res, next) {
-    const { 
-      idMoto, 
-      nombre_interesado, 
-      email_interesado, 
-      telefono_interesado, 
-      horario_preferido, 
-      comentarios 
+    const {idMoto, nombre_interesado, email_interesado, telefono_interesado, horario_preferido, comentarios 
     } = req.body;
 
     if (!idMoto || !nombre_interesado || !email_interesado) {
@@ -25,7 +19,7 @@ export const reservasController = {
 
       // A. Verificar existencia y estado actual de la moto
       const motoRes = await client.query(
-        `SELECT m.estado, p.esta_activo 
+        `SELECT p.id_producto, p.stock, m.estado, p.esta_activo
          FROM motos m
          INNER JOIN productos p ON m.id_producto = p.id_producto
          WHERE m.id_producto = $1 AND p.esta_activo = true FOR UPDATE`,
@@ -39,9 +33,22 @@ export const reservasController = {
 
       const moto = motoRes.rows[0];
 
-      if (moto.estado === 'Reservada') {
+      //creo que aca esta el problema, porque no estoy considerando las unidades en stock qe tengo, y solo
+      //con una reserva activa, no puedo reservar otra moto, aunque tenga 2 en stock. Entonces, si tengo 2 motos en stock y una esta reservada, deberia poder reservar la otra.
+      
+      //aca cuento cuantas reservas activas hay para esa moto, y si es mayor o igual al stock, no dejo reservar
+      const reservasCountRes = await client.query(
+        `SELECT COUNT(*) FROM reservas WHERE id_moto =$1
+        AND estado_reserva = 'vigente'
+        AND fecha_reserva > NOW() - INTERVAL '48 hours'`,
+        [idMoto]
+      );
+
+      const reservasVigentes= parseInt(reservasCountRes.rows[0].count, 10);
+
+      if (reservasVigentes >= moto.stock) {
         await client.query('ROLLBACK');
-        return res.status(409).json({ error: 'La moto ya posee una reserva activa en este momento' });
+        return res.status(409).json({ error: 'No hay unidades disponibles para reservar esta moto' });
       }
 
       // B. Crear el registro de la reserva con fecha_vencimiento a 48 hs
@@ -53,9 +60,10 @@ export const reservasController = {
             telefono_interesado, 
             fecha_vencimiento, 
             horario_preferido, 
-            comentarios
+            comentarios,
+            estado_reserva
          ) 
-         VALUES ($1, $2, $3, $4, NOW() + INTERVAL '48 hours', $5, $6) 
+         VALUES ($1, $2, $3, $4, NOW() + INTERVAL '48 hours', $5, $6, 'vigente') 
          RETURNING id_reserva, fecha_reserva, fecha_vencimiento, estado_reserva`,
         [
           idMoto, 
@@ -67,11 +75,13 @@ export const reservasController = {
         ]
       );
 
-      // C. Actualizar el estado de la moto a 'Reservada'
-      await client.query(
-        `UPDATE motos SET estado = 'Reservada' WHERE id_producto = $1`,
-        [idMoto]
-      );
+    if(reservasVigentes + 1 >= moto.stock) {
+        // Si la reserva actual hace que se agoten las unidades, actualizar el estado de la moto a 'Reservada'
+        await client.query(
+          `UPDATE motos SET estado = 'Reservada' WHERE id_producto = $1`,
+          [idMoto]
+        );
+      }
 
       await client.query('COMMIT');
 
@@ -123,7 +133,9 @@ export const reservasController = {
     const { id } = req.params;
     const { estado_reserva } = req.body; // 'Concretada' o 'Cancelada/Vencida'
 
-    if (!['concretada', 'cancelada/vencida'].includes(estado_reserva)) {
+    const nuevoEstado = (estado_reserva || '').trim().toLowerCase();
+
+    if (!['concretada', 'cancelada','vencida', 'vigente'].includes(nuevoEstado)) {
       return res.status(400).json({ error: 'Estado de reserva no válido' });
     }
 
@@ -147,17 +159,38 @@ export const reservasController = {
       }
 
       const idMoto = resResult.rows[0].id_moto;
+      //cuento de nuevo als reservas vigentes para la moto
+      const reservasCountRes = await client.query(
+      `SELECT COUNT(*) FROM reservas 
+       WHERE id_moto = $1 
+         AND estado_reserva = 'vigente' 
+         AND fecha_reserva >= NOW() - INTERVAL '48 hours'`,
+      [idMoto]
+    );
 
-      // Si se cancela o vence, liberar la moto a 'Disponible'
-      if (estado_reserva === 'Cancelada/Vencida') {
-        await client.query(
-          `UPDATE motos SET estado = 'Disponible' WHERE id_producto = $1`,
-          [idMoto]
-        );
-      }
+    const reservasVigentes = parseInt(reservasCountRes.rows[0].count, 10);
+
+    //obtengo el stock de la moto
+    const stockRes = await client.query(
+      `SELECT p.stock
+       FROM productos p
+       INNER JOIN motos m ON m.id_producto = p.id_producto
+       WHERE m.id_producto = $1`,
+      [idMoto]
+    );
+    const stockTotal = stockRes.rows[0].stock;
+
+    //si hay algun cupo libre, pongo la moto como disponible(o la mantengo en caso que este)
+    if (reservasVigentes < stockTotal) {
+      await client.query(
+        `UPDATE motos SET estado = 'Disponible' WHERE id_producto = $1`,
+        [idMoto]
+      );
+    }
+         
 
       await client.query('COMMIT');
-      return res.json({ mensaje: `Reserva actualizada a estado ${estado_reserva}` });
+      return res.json({ mensaje: `Reserva actualizada a estado ${nuevoEstado}` });
 
     } catch (error) {
       await client.query('ROLLBACK');
