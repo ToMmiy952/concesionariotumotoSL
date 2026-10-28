@@ -16,6 +16,11 @@ INSERT INTO clientes (id_usuario, telefono, direccion, cod_postal, provincia) VA
 ON CONFLICT (id_usuario) DO NOTHING;
 INSERT INTO vendedores (id_usuario, fecha_contratacion) VALUES (102, '2024-01-15') ON CONFLICT (id_usuario) DO NOTHING;
 INSERT INTO administradores (id_usuario) VALUES (103) ON CONFLICT (id_usuario) DO NOTHING;
+INSERT INTO clientes (id_usuario, telefono, direccion, cod_postal, provincia) VALUES
+(104, '1123456789', 'Av. Siempre Viva 742', 1000, 'Buenos Aires')
+ON CONFLICT (id_usuario) DO NOTHING;
+INSERT INTO vendedores (id_usuario, fecha_contratacion) VALUES (105, '2024-01-15') ON CONFLICT (id_usuario) DO NOTHING;
+INSERT INTO administradores (id_usuario) VALUES (106) ON CONFLICT (id_usuario) DO NOTHING;
 
 -- Sincronizar secuencia de usuarios
 SELECT setval(pg_get_serial_sequence('usuarios', 'id_usuario'), COALESCE(MAX(id_usuario), 1)) FROM usuarios;
