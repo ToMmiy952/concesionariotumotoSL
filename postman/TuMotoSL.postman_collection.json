@@ -1,0 +1,691 @@
+{
+  "info": {
+    "_postman_id": "a3ff1745-7d71-433b-9158-a990ddc282b6",
+    "name": "TuMotoSL",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58342856",
+    "_collection_link": "https://go.postman.co/collection/58342856-a3ff1745-7d71-433b-9158-a990ddc282b6?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Publico",
+      "item": [
+        {
+          "name": "Listar Motos(sin token)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/motos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "motos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Detalle de Moto(sin token)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/motos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "motos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Accesorios(sin token)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/accesorios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "accesorios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Detalle Accesorio(sin token)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana\",\n  \"email\": \"ana@mail.com\",\n  \"password\": \"clave123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/accesorios/9",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "accesorios",
+                "9"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Reserva(sin token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idMoto\": 1,\n  \"nombre_interesado\": \"Ana\",\n  \"email_interesado\": \"ana@mail.com\",\n  \"telefono_interesado\": \"2664123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reservas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Autenticacion",
+      "item": [
+        {
+          "name": "Registro",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nombre\": \"Tomas M\",\r\n  \"email\": \"tomas@mail.com\",\r\n  \"password\": \"contra123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Incorrecto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"admin@tumoto.com\",\r\n    \"password\": \"equivocada\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Guarda el token recibido para usarlo en los próximos pedidos\r\nconst respuesta = pm.response.json();\r\n\r\nif (respuesta.token) {\r\n  pm.collectionVariables.set('token', respuesta.token);\r\n  console.log('Token guardado:', respuesta.token);\r\n}\r\n\r\npm.test('Devuelve un token', () => pm.expect(respuesta.token).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"tomas@mail.com\",\r\n    \"password\": \"contra123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "LoginAdmin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"admin@tumoto.com\",\r\n    \"password\": \"123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Rutas Protegidas",
+      "item": [
+        {
+          "name": "Perfin(sin token)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana\",\n  \"email\": \"ana@mail.com\",\n  \"password\": \"clave123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "perfil"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Perfil(con token)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "perfil"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Token adulterado",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}x"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "perfil"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear moto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"marca\": \"Yamaha\",\r\n  \"modelo\": \"MT-03\",\r\n  \"cilindrada\": 321,\r\n  \"precio\": 8500000,\r\n  \"stock\": 5,\r\n  \"descripcion\": \"Naked deportiva bicilíndrica\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/motos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "motos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar moto",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"marca\": \"Honda\",\r\n  \"modelo\": \"CB 250 Twister\",\r\n  \"cilindrada\": 250,\r\n  \"precio\": 6200000,\r\n  \"stock\": 8,\r\n  \"descripcion\": \"Edición actualizada\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/motos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "motos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar moto(baja logica)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/motos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "motos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Accesorio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nombre\": \"Casco LS2 Rapid\",\r\n  \"categoria\": \"Cascos\",\r\n  \"precio\": 140000,\r\n  \"stock\": 10,\r\n  \"descripcion\": \"Casco integral talle L\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/accesorios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "accesorios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Accesorio",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nombre\": \"Casco LS2 Rapid II\",\r\n  \"categoria\": \"Cascos\",\r\n  \"precio\": 155000,\r\n  \"stock\": 12,\r\n  \"descripcion\": \"Nueva versión homologada\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/accesorios/16",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "accesorios",
+                "16"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Accesorio",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/accesorios/16",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "accesorios",
+                "16"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Carrito",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carrito",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carrito"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Agregar al carrito",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"idAccesorio\": 10,\r\n  \"cantidad\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carrito/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carrito",
+                "items"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Cantidad Carrito",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"cantidad\": 5\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carrito/items/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carrito",
+                "items",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Item de carrito",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carrito/items/3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carrito",
+                "items",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Reservas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar estado reserva",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"estado_reserva\": \"concretada\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reservas/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}

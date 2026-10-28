@@ -1,164 +1,75 @@
-import { pool } from '../config/db.js';
+import { carritoRepository } from '../repositories/carrito.repository.js';
+import { enteroPositivo } from '../utils/validaciones.js';
 
 export const carritoController = {
-  // 1. GET /api/v1/carrito (Obtener el carrito activo del cliente autenticado)
-  async obtenerCarrito(req, res, next) {
-    const id_cliente = req.usuario.id_usuario; // Extraído del token JWT por verificarToken
+  // GET /api/v1/carrito (carrito del cliente autenticado; se crea si todavía no tiene)
+  async obtenerCarrito(req, res) {
+    const idCarrito = await carritoRepository.obtenerOCrearId(req.usuario.id_usuario);
+    const items = await carritoRepository.listarItems(idCarrito);
 
-    try {
-      // 1. Buscar o crear la cabecera del carrito para este cliente
-      let carritoRes = await pool.query(
-        `SELECT id_carrito FROM carritos WHERE id_cliente = $1`,
-        [id_cliente]
-      );
-
-      let id_carrito;
-      if (carritoRes.rows.length === 0) {
-        // Si no existe, creamos el carrito automáticamente
-        const nuevoCarrito = await pool.query(
-          `INSERT INTO carritos (id_cliente) VALUES ($1) RETURNING id_carrito`,
-          [id_cliente]
-        );
-        id_carrito = nuevoCarrito.rows[0].id_carrito;
-      } else {
-        id_carrito = carritoRes.rows[0].id_carrito;
-      }
-
-      // 2. Obtener los ítems asociados al carrito con JOIN a productos y accesorios
-      const itemsRes = await pool.query(
-        `SELECT ic.id_item_carrito, ic.id_accesorio, a.nombre, p.precio, 
-                p.imagen, a.talle, ic.cantidad, (p.precio * ic.cantidad) AS subtotal
-         FROM item_carrito ic
-         INNER JOIN accesorios a ON ic.id_accesorio = a.id_producto
-         INNER JOIN productos p ON a.id_producto = p.id_producto
-         WHERE ic.id_carrito = $1 AND p.esta_activo = true`,
-        [id_carrito]
-      );
-
-      return res.json({
-        id_carrito,
-        items: itemsRes.rows,
-        total: itemsRes.rows.reduce((acc, item) => acc + Number(item.subtotal), 0)
-      });
-    } catch (error) {
-      next(error);
-    }
+    res.json({
+      id_carrito: idCarrito,
+      items,
+      total: items.reduce((acc, item) => acc + Number(item.subtotal), 0),
+    });
   },
 
-  // 2. POST /api/v1/carrito/items (Agregar o incrementar cantidad de un accesorio)
-  async agregarItem(req, res, next) {
-    const id_cliente = req.usuario.id_usuario;
+  // POST /api/v1/carrito/items (agrega un accesorio o suma cantidad si ya estaba)
+  async agregarItem(req, res) {
     const { idAccesorio, cantidad = 1 } = req.body;
 
-    if (!idAccesorio || cantidad <= 0) {
-      return res.status(400).json({ error: 'Debes proporcionar un idAccesorio válido y una cantidad mayor a 0' });
+    if (!enteroPositivo(idAccesorio) || !enteroPositivo(cantidad)) {
+      return res.status(400).json({ error: 'Debes proporcionar un idAccesorio válido y una cantidad entera mayor a 0' });
     }
 
-    try {
-      // 1. Verificar stock del accesorio
-      const prodRes = await pool.query(
-        `SELECT stock FROM productos WHERE id_producto = $1 AND tipo = 'ACCESORIO' AND esta_activo = true`,
-        [idAccesorio]
-      );
-
-      if (prodRes.rows.length === 0) {
-        return res.status(404).json({ error: 'Accesorio no encontrado o inactivo' });
-      }
-
-      // 2. Garantizar que existe el carrito cabecera
-      let carritoRes = await pool.query(
-        `SELECT id_carrito FROM carritos WHERE id_cliente = $1`,
-        [id_cliente]
-      );
-
-      let id_carrito;
-      if (carritoRes.rows.length === 0) {
-        const nuevoCarrito = await pool.query(
-          `INSERT INTO carritos (id_cliente) VALUES ($1) RETURNING id_carrito`,
-          [id_cliente]
-        );
-        id_carrito = nuevoCarrito.rows[0].id_carrito;
-      } else {
-        id_carrito = carritoRes.rows[0].id_carrito;
-      }
-
-      // 3. Evaluar si el producto ya existe en el carrito
-      const itemExistente = await pool.query(
-        `SELECT id_item_carrito, cantidad FROM item_carrito WHERE id_carrito = $1 AND id_accesorio = $2`,
-        [id_carrito, idAccesorio]
-      );
-
-      if (itemExistente.rows.length > 0) {
-        // Incrementar cantidad
-        const nuevaCantidad = itemExistente.rows[0].cantidad + cantidad;
-        if (nuevaCantidad > prodRes.rows[0].stock) {
-          return res.status(400).json({ error: 'La cantidad solicitada supera el stock disponible' });
-        }
-
-        await pool.query(
-          `UPDATE item_carrito SET cantidad = $1 WHERE id_item_carrito = $2`,
-          [nuevaCantidad, itemExistente.rows[0].id_item_carrito]
-        );
-      } else {
-        // Insertar nuevo ítem
-        if (cantidad > prodRes.rows[0].stock) {
-          return res.status(400).json({ error: 'La cantidad solicitada supera el stock disponible' });
-        }
-
-        await pool.query(
-          `INSERT INTO item_carrito (id_carrito, id_accesorio, cantidad) VALUES ($1, $2, $3)`,
-          [id_carrito, idAccesorio, cantidad]
-        );
-      }
-
-      return res.status(201).json({ mensaje: 'Ítem agregado/actualizado en el carrito correctamente' });
-    } catch (error) {
-      next(error);
+    const stock = await carritoRepository.stockAccesorio(idAccesorio);
+    if (stock === null) {
+      return res.status(404).json({ error: 'Accesorio no encontrado o inactivo' });
     }
+
+    const idCarrito = await carritoRepository.obtenerOCrearId(req.usuario.id_usuario);
+    const existente = await carritoRepository.buscarItemPorAccesorio(idCarrito, idAccesorio);
+    const nuevaCantidad = Number(cantidad) + (existente?.cantidad ?? 0);
+
+    if (nuevaCantidad > stock) {
+      return res.status(400).json({ error: 'La cantidad solicitada supera el stock disponible' });
+    }
+
+    if (existente) {
+      await carritoRepository.actualizarCantidad(existente.id_item_carrito, nuevaCantidad);
+    } else {
+      await carritoRepository.insertarItem(idCarrito, idAccesorio, nuevaCantidad);
+    }
+
+    res.status(201).json({ mensaje: 'Ítem agregado/actualizado en el carrito correctamente' });
   },
 
-  // 3. PUT /api/v1/carrito/items/:id (Modificar cantidad fija de un ítem)
-  async actualizarCantidad(req, res, next) {
-    const { id } = req.params; // id_item_carrito
+  // PUT /api/v1/carrito/items/:id (fija la cantidad de un ítem propio)
+  async actualizarCantidad(req, res) {
     const { cantidad } = req.body;
 
-    if (!cantidad || cantidad <= 0) {
-      return res.status(400).json({ error: 'La cantidad debe ser mayor a 0' });
+    if (!enteroPositivo(cantidad)) {
+      return res.status(400).json({ error: 'La cantidad debe ser un entero mayor a 0' });
     }
 
-    try {
-      const result = await pool.query(
-        `UPDATE item_carrito SET cantidad = $1 WHERE id_item_carrito = $2 RETURNING *`,
-        [cantidad, id]
-      );
+    // Solo encuentra el ítem si es del carrito del cliente logueado
+    const item = await carritoRepository.buscarItemDeCliente(req.params.id, req.usuario.id_usuario);
+    if (!item) return res.status(404).json({ error: 'Ítem de carrito no encontrado' });
 
-      if (result.rowCount === 0) {
-        return res.status(404).json({ error: 'Ítem de carrito no encontrado' });
-      }
-
-      return res.json({ mensaje: 'Cantidad actualizada', item: result.rows[0] });
-    } catch (error) {
-      next(error);
+    if (Number(cantidad) > item.stock) {
+      return res.status(400).json({ error: 'La cantidad solicitada supera el stock disponible' });
     }
+
+    const actualizado = await carritoRepository.actualizarCantidad(item.id_item_carrito, cantidad);
+    res.json({ mensaje: 'Cantidad actualizada', item: actualizado });
   },
 
-  // 4. DELETE /api/v1/carrito/items/:id (Quitar un ítem del carrito)
-  async eliminarItem(req, res, next) {
-    const { id } = req.params; // id_item_carrito
+  // DELETE /api/v1/carrito/items/:id (quita un ítem propio)
+  async eliminarItem(req, res) {
+    const item = await carritoRepository.buscarItemDeCliente(req.params.id, req.usuario.id_usuario);
+    if (!item) return res.status(404).json({ error: 'Ítem no encontrado en el carrito' });
 
-    try {
-      const result = await pool.query(
-        `DELETE FROM item_carrito WHERE id_item_carrito = $1`,
-        [id]
-      );
-
-      if (result.rowCount === 0) {
-        return res.status(404).json({ error: 'Ítem no encontrado en el carrito' });
-      }
-
-      return res.status(200).json({ mensaje: 'Ítem eliminado del carrito' });
-    } catch (error) {
-      next(error);
-    }
-  }
+    await carritoRepository.eliminarItem(item.id_item_carrito);
+    res.status(204).send();
+  },
 };

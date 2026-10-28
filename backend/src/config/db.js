@@ -26,3 +26,19 @@ export const pool = new Pool({
 pool.on('error', (err) => {
   console.error('Error inesperado en el pool de conexiones', err);
 });
+
+// Ejecuta `trabajo(client)` dentro de una transacción: COMMIT si termina bien, ROLLBACK si lanza un error
+export async function conTransaccion(trabajo) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const resultado = await trabajo(client);
+    await client.query('COMMIT');
+    return resultado;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}

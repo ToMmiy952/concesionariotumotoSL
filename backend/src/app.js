@@ -6,6 +6,7 @@ import motosRoutes from './routes/motos.routes.js';
 import accesoriosRoutes from './routes/accesorios.routes.js';
 import carritoRoutes from './routes/carrito.routes.js';
 import reservasRoutes from './routes/reservas.routes.js';
+import { manejarErrores } from './middlewares/manejarErrores.js';
 
 const app = express();
 
@@ -31,5 +32,8 @@ app.get('/api/health', (req, res) => {
 app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
+
+// 5. Manejador centralizado de errores (siempre al final)
+app.use(manejarErrores);
 
 export default app;

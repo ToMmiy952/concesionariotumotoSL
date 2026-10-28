@@ -1,8 +1,7 @@
-const API_URL = 'http://localhost:3000/api/v1/motos'
-
+import { apiFetch } from '../../../shared/utils/api'
 
 export async function obtenerMotos() {
-  const respuesta = await fetch(API_URL);
+  const respuesta = await apiFetch('/motos');
   if (!respuesta.ok) {
     throw new Error('Error al obtener las motos');
   }
@@ -10,7 +9,7 @@ export async function obtenerMotos() {
 }
 
 export async function obtenerMotoPorId(id) {
-  const respuesta = await fetch(`${API_URL}/${id}`);
+  const respuesta = await apiFetch(`/motos/${id}`);
 
   if (!respuesta.ok) {
     throw new Error('La moto solicitada no existe o no se pudo cargar.');
