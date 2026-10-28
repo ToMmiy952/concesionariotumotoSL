@@ -1,8 +1,15 @@
+import { useEffect, useState } from 'react'
 import { calcularMetricas } from './metricasService'
+import { contarReservasVigentes } from '../vendedor/reservasService'
 import { obtenerVentas } from '../vendedor/ventasService'
 
 function PanelInicioPage() {
   const m = calcularMetricas()
+  const [reservasVigentes, setReservasVigentes] = useState(null) // null mientras carga o si la API falla
+
+  useEffect(() => {
+    contarReservasVigentes().then(setReservasVigentes)
+  }, [])
   const pesos = n => n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })
   const ventas = obtenerVentas()
 
@@ -26,7 +33,7 @@ function PanelInicioPage() {
         <div className="col-12 col-md-6 col-xl-3">
   <div className="tarjeta-metrica">
     <i className="bi bi-hourglass-split icono"></i>
-    <div><h3>Pedidos pendientes</h3><p>{m.pedidosPendientes}</p></div>
+    <div><h3>Reservas vigentes</h3><p>{reservasVigentes ?? '—'}</p></div>
   </div>
 </div>
 <div className="col-12 col-md-6 col-xl-3">

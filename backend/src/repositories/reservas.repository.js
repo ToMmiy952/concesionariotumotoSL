@@ -48,13 +48,30 @@ export const reservasRepository = {
     });
   },
 
+  // Pasa a 'vencida' las reservas vigentes que superaron las 48 hs y libera la moto si corresponde
+  async expirarVencidas() {
+    return conTransaccion(async (db) => {
+      const vencidas = await db.query(
+        `UPDATE reservas SET estado_reserva = 'vencida'
+         WHERE estado_reserva = 'vigente' AND fecha_vencimiento <= NOW()
+         RETURNING id_moto`
+      );
+      for (const idMoto of new Set(vencidas.rows.map((r) => r.id_moto))) {
+        await sincronizarEstadoMoto(db, idMoto);
+      }
+    });
+  },
+
+  // moto_sin_stock marca las reservas vigentes cuya moto se agotó, para que el vendedor contacte al cliente
   async listar({ estado }) {
+    await this.expirarVencidas();
     const params = [];
     let query = `
       SELECT r.id_reserva, r.id_moto, p.marca, m.modelo,
              r.nombre_interesado, r.email_interesado, r.telefono_interesado,
              r.fecha_reserva, r.fecha_vencimiento, r.estado_reserva,
-             r.horario_preferido, r.comentarios
+             r.horario_preferido, r.comentarios,
+             (r.estado_reserva = 'vigente' AND p.stock = 0) AS moto_sin_stock
       FROM reservas r
       INNER JOIN motos m ON r.id_moto = m.id_producto
       INNER JOIN productos p ON m.id_producto = p.id_producto`;
