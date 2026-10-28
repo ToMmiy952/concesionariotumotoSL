@@ -3,6 +3,10 @@ const esNumero = (v) => v !== null && v !== '' && Number.isFinite(Number(v));
 export const precioValido = (v) => esNumero(v) && Number(v) > 0;
 export const enteroNoNegativo = (v) => esNumero(v) && Number.isInteger(Number(v)) && Number(v) >= 0;
 export const enteroPositivo = (v) => enteroNoNegativo(v) && Number(v) > 0;
+// Fecha en formato YYYY-MM-DD que exista en el calendario
+export const fechaValida = (v) =>
+  typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v)) &&
+  new Date(v).toISOString().slice(0, 10) === v;
 export const emailValido = (v) => typeof v === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 // Valida los campos numéricos de un producto (solo los que vienen en el body). Devuelve el mensaje de error o null

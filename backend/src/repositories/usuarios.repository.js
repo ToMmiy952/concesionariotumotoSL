@@ -9,6 +9,28 @@ export const usuariosRepository = {
     return result.rows[0] ?? null;
   },
 
+  // Lista usuarios (sin contraseña), con filtro opcional por rol
+  async listar({ rol }) {
+    const params = [];
+    let query = 'SELECT id_usuario, nombre, email, rol, esta_activo FROM usuarios';
+    if (rol) {
+      params.push(rol);
+      query += ' WHERE rol = $1';
+    }
+    const result = await pool.query(`${query} ORDER BY id_usuario`, params);
+    return result.rows;
+  },
+
+  // Activa o desactiva una cuenta (baja lógica). Devuelve el usuario actualizado o null si no existe
+  async cambiarActivo(id, activo) {
+    const result = await pool.query(
+      `UPDATE usuarios SET esta_activo = $1 WHERE id_usuario = $2
+       RETURNING id_usuario, nombre, email, rol, esta_activo`,
+      [activo, id]
+    );
+    return result.rows[0] ?? null;
+  },
+
   // Crea el usuario y su fila de cliente en una sola transacción. Si el email ya existe lanza el error 23505 de PostgreSQL
   async crearCliente({ nombre, email, passwordHash, telefono, direccion, cod_postal, provincia }) {
     return conTransaccion(async (db) => {

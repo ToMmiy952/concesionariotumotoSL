@@ -12,6 +12,8 @@ export const manejarErrores = (err, req, res, next) => {
   switch (err.code) {
     case '22P02': // formato inválido (ej: valor fuera del ENUM)
     case '22003': // número fuera de rango
+    case '22007': // fecha inválida
+    case '22008': // fecha fuera de rango
     case '23502': // NOT NULL
     case '23514': // CHECK
       return res.status(400).json({ error: 'Los datos enviados no son válidos' });

@@ -1,7 +1,7 @@
 import { pool, conTransaccion } from '../config/db.js';
 
 // Marca la moto como Disponible si todavía le quedan unidades sin reservar, o como Reservada si no
-async function sincronizarEstadoMoto(db, idMoto) {
+export async function sincronizarEstadoMoto(db, idMoto) {
   const vigentes = await db.query(
     `SELECT COUNT(*) FROM reservas
      WHERE id_moto = $1 AND estado_reserva = 'vigente' AND fecha_vencimiento > NOW()`,
