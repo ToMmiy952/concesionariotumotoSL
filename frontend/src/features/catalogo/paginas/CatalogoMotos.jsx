@@ -15,10 +15,12 @@ function Catalogo() {
         async function cargarDatos() {
             try {
                 setCargando(true);
+                setError(null);
                 const datos = await obtenerMotos();
                 setMotos(datos);
             } catch (err) {
-                setError(err.message);
+                console.error('Error al cargar las motos:', err);
+                setError(err.message||'No fue posible cargar las motos.');
             } finally {
                 setCargando(false);
             }
@@ -37,6 +39,7 @@ function Catalogo() {
         motosOrdenadas.sort((a, b) => b.precio - a.precio)
     }
 
+    //Estado de carga mientras se resuelve la promesa de obtenerMoto
     if (cargando) {
         return (
             <div className="container my-5 text-center">
@@ -47,6 +50,7 @@ function Catalogo() {
             </div>
         );
     }
+    //estado de error si fallo la api
     if (error) {
         return (
             <div className="container my-5 text-center">
@@ -57,6 +61,7 @@ function Catalogo() {
         );
     }
 
+    //renderizado del catalgoo
     return <>
         {/**Todo este codigo es solo para poner el texto sobre la imagen */}
 
