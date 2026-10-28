@@ -1,12 +1,10 @@
-const CLAVE = 'sesion'
-export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api/v1'
+import { apiFetch, CLAVE_SESION as CLAVE } from '../../shared/utils/api'
 
 // POST JSON a la API; devuelve { ok, status, data } y nunca lanza (sin conexión, ok es false con un mensaje)
 async function post(ruta, cuerpo) {
   try {
-    const res = await fetch(`${API_URL}${ruta}`, {
+    const res = await apiFetch(ruta, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cuerpo),
     })
     const data = await res.json().catch(() => ({}))
