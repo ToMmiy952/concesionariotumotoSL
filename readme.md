@@ -49,3 +49,14 @@ password: 123
 email: admin@tumoto.com 
 password: 123
 
+
+Colección de Postman (probar la API sin el front)
+
+1. Con el backend levantado, abrir Postman e importar el archivo postman/TuMotoSL.postman_collection.json
+2. La variable baseUrl ya apunta a http://localhost:3000/api/v1. Los tokens se guardan solos como variables de la colección (token, tokenCliente, tokenAdmin, tokenVendedor).
+3. Ejecutar la colección completa (Run collection) en el orden de las carpetas: Publico, Autenticacion, Rutas Protegidas, Usuarios (admin), Ventas y Metricas.
+
+Notas:
+- En Autenticacion, Registro devuelve 409 si ya se ejecutó antes (el email ya existe): es el comportamiento esperado.
+- Cada ejecución crea una moto y un accesorio de prueba (y los da de baja), una reserva y una venta de moto, que descuenta stock. Para volver al estado inicial, recrear la base con el comando del paso 1.
+- Las peticiones usan los ids de lo que crea la propia colección, así que no hay que editarlas.

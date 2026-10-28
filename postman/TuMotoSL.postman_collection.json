@@ -123,7 +123,18 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idReserva', pm.response.json().reserva.id_reserva);"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -446,7 +457,18 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idMotoCreada', pm.response.json().id_producto);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Actualizar moto",
@@ -468,13 +490,13 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/motos/1",
+              "raw": "{{baseUrl}}/motos/{{idMotoCreada}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "motos",
-                "1"
+                "{{idMotoCreada}}"
               ]
             },
             "auth": {
@@ -496,13 +518,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/motos/1",
+              "raw": "{{baseUrl}}/motos/{{idMotoCreada}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "motos",
-                "1"
+                "{{idMotoCreada}}"
               ]
             },
             "auth": {
@@ -557,7 +579,18 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idAccesorioCreado', pm.response.json().id_producto);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Actualizar Accesorio",
@@ -579,13 +612,13 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/accesorios/16",
+              "raw": "{{baseUrl}}/accesorios/{{idAccesorioCreado}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "accesorios",
-                "16"
+                "{{idAccesorioCreado}}"
               ]
             },
             "auth": {
@@ -607,13 +640,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/accesorios/16",
+              "raw": "{{baseUrl}}/accesorios/{{idAccesorioCreado}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "accesorios",
-                "16"
+                "{{idAccesorioCreado}}"
               ]
             },
             "auth": {
@@ -676,7 +709,18 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({\n  url: pm.variables.replaceIn('{{baseUrl}}/carrito'),\n  method: 'GET',\n  header: { Authorization: 'Bearer ' + pm.collectionVariables.get('token') },\n}, (err, res) => {\n  const item = res && res.json().items.find(i => i.id_accesorio === 10);\n  if (item) pm.collectionVariables.set('idItemCarrito', item.id_item_carrito);\n});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Modificar Cantidad Carrito",
@@ -698,14 +742,14 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/carrito/items/1",
+              "raw": "{{baseUrl}}/carrito/items/{{idItemCarrito}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "carrito",
                 "items",
-                "1"
+                "{{idItemCarrito}}"
               ]
             }
           },
@@ -717,14 +761,14 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/carrito/items/3",
+              "raw": "{{baseUrl}}/carrito/items/{{idItemCarrito}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "carrito",
                 "items",
-                "3"
+                "{{idItemCarrito}}"
               ]
             }
           },
@@ -769,7 +813,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"estado_reserva\": \"concretada\"\r\n}",
+              "raw": "{\r\n  \"estado_reserva\": \"cancelada\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -777,13 +821,13 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/reservas/1",
+              "raw": "{{baseUrl}}/reservas/{{idReserva}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "reservas",
-                "1"
+                "{{idReserva}}"
               ]
             },
             "auth": {
@@ -1096,6 +1140,59 @@
       "name": "Ventas",
       "item": [
         {
+          "name": "Agregar accesorio al carrito (para pagar)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"idAccesorio\": 10,\r\n  \"cantidad\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carrito/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carrito",
+                "items"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Pagar carrito (cliente)",
           "request": {
             "method": "POST",
@@ -1118,7 +1215,8 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Responde 201', () => pm.response.to.have.status(201));"
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idVenta', pm.response.json().id_venta);"
                 ]
               }
             }
@@ -1207,6 +1305,49 @@
           ]
         },
         {
+          "name": "Crear reserva (para concretar)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idMoto\": 1,\n  \"nombre_interesado\": \"Ana\",\n  \"email_interesado\": \"ana@mail.com\",\n  \"telefono_interesado\": \"2664123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reservas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idReservaVenta', pm.response.json().reserva.id_reserva);"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Registrar venta desde reserva (vendedor)",
           "request": {
             "method": "POST",
@@ -1228,7 +1369,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"idMoto\": 1,\n  \"idReserva\": 1\n}",
+              "raw": "{\n  \"idMoto\": 1,\n  \"idReserva\": {{idReservaVenta}}\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1481,13 +1622,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/ventas/1",
+              "raw": "{{baseUrl}}/ventas/{{idVenta}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "ventas",
-                "1"
+                "{{idVenta}}"
               ]
             },
             "auth": {
@@ -1870,6 +2011,30 @@
     },
     {
       "key": "tokenCliente",
+      "value": ""
+    },
+    {
+      "key": "idReserva",
+      "value": ""
+    },
+    {
+      "key": "idMotoCreada",
+      "value": ""
+    },
+    {
+      "key": "idAccesorioCreado",
+      "value": ""
+    },
+    {
+      "key": "idItemCarrito",
+      "value": ""
+    },
+    {
+      "key": "idReservaVenta",
+      "value": ""
+    },
+    {
+      "key": "idVenta",
       "value": ""
     }
   ]
