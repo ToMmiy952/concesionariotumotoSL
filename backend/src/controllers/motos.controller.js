@@ -158,7 +158,9 @@ export const motosController = {
                 return res.status(404).json({ error: 'Moto no encontrada o ya estaba dada de baja' });
             }
 
-            return res.status(204).send();
+            return res.status(200).json({ 
+            mensaje: 'Moto dada de baja exitosamente' 
+        });
         } catch (error) {
             next(error);
         }

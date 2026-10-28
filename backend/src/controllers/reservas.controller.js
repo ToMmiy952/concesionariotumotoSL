@@ -123,7 +123,7 @@ export const reservasController = {
     const { id } = req.params;
     const { estado_reserva } = req.body; // 'Concretada' o 'Cancelada/Vencida'
 
-    if (!['Concretada', 'Cancelada/Vencida'].includes(estado_reserva)) {
+    if (!['concretada', 'cancelada/vencida'].includes(estado_reserva)) {
       return res.status(400).json({ error: 'Estado de reserva no válido' });
     }
 

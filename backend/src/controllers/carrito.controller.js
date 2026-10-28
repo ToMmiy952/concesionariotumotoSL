@@ -156,7 +156,7 @@ export const carritoController = {
         return res.status(404).json({ error: 'Ítem no encontrado en el carrito' });
       }
 
-      return res.status(204).send();
+      return res.status(200).json({ mensaje: 'Ítem eliminado del carrito' });
     } catch (error) {
       next(error);
     }

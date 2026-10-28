@@ -153,7 +153,9 @@ export const accesoriosController = {
         return res.status(404).json({ error: 'Accesorio no encontrado o ya dado de baja' });
       }
 
-      return res.status(204).send();
+      return res.status(200).json({ 
+            mensaje: 'Accesorio dado de baja exitosamente' 
+        });
     } catch (error) {
       next(error);
     }
