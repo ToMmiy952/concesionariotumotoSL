@@ -12,9 +12,9 @@ export const ventasRepository = {
       const items = await db.query(
         `SELECT ic.id_accesorio, ic.cantidad, p.precio, p.stock, p.esta_activo, a.nombre
          FROM item_carrito ic
-         INNER JOIN carritos c ON ic.id_carrito = c.id_carrito
          INNER JOIN productos p ON ic.id_accesorio = p.id_producto
          INNER JOIN accesorios a ON a.id_producto = p.id_producto
+         INNER JOIN carritos c ON ic.id_carrito = c.id_carrito
          WHERE c.id_cliente = $1
          ORDER BY ic.id_accesorio
          FOR UPDATE OF p`,
@@ -35,9 +35,9 @@ export const ventasRepository = {
 
       for (const item of items.rows) {
         await db.query(
-          `INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario_historico)
+          `INSERT INTO detalle_venta (id_venta, id_producto, precio_unitario_historico, cantidad)
            VALUES ($1, $2, $3, $4)`,
-          [idVenta, item.id_accesorio, item.cantidad, item.precio]
+          [idVenta, item.id_accesorio, item.precio, item.cantidad]
         );
         await db.query('UPDATE productos SET stock = stock - $1 WHERE id_producto = $2', [item.cantidad, item.id_accesorio]);
       }
@@ -141,8 +141,8 @@ export const ventasRepository = {
               (d.cantidad * d.precio_unitario_historico) AS subtotal
        FROM detalle_venta d
        INNER JOIN productos p ON d.id_producto = p.id_producto
-       LEFT JOIN accesorios a ON a.id_producto = p.id_producto
        LEFT JOIN motos m ON m.id_producto = p.id_producto
+       LEFT JOIN accesorios a ON a.id_producto = p.id_producto
        WHERE d.id_venta = $1
        ORDER BY d.id_detalle_venta`,
       [id]
