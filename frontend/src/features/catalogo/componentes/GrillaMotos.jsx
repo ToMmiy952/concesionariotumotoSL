@@ -6,8 +6,8 @@ function GrillaProductos({motosOrdenadas}){
         <div className="row g-4 mt-3">
                     {motosOrdenadas.map((moto) => (
                         <TarjetaMoto
-                            key={moto.id}
-                            id={moto.id}
+                            key={moto.id_producto}
+                            id={moto.id_producto}
                             marca={moto.marca}
                             modelo={moto.modelo}
                             precio={moto.precio}
