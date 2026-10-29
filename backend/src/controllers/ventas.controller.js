@@ -30,11 +30,11 @@ export const ventasController = {
     });
 
     const errores = {
-      moto_inexistente: [404, 'La moto no existe o está inactiva'],
       reserva_inexistente: [404, 'La reserva no existe'],
+      moto_inexistente: [404, 'La moto no existe o está inactiva'],
+      reserva_no_vigente: [400, 'La reserva no está vigente'],
       sin_stock: [400, 'La moto no tiene stock disponible'],
       reserva_ajena: [400, 'La reserva corresponde a otra moto'],
-      reserva_no_vigente: [400, 'La reserva no está vigente'],
     };
     if (errores[resultado]) {
       const [estado, error] = errores[resultado];
