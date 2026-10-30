@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { pool, conTransaccion } from '../config/db.js';
 import { env } from '../config/env.js';
-import { usuariosRepository } from '../repositories/usuarios.repository.js';
-import { emailValido } from '../utils/validaciones.js';
+import { emailValido } from '../middlewares/validaciones.js';
 
 export const authController = {
   // POST /api/v1/auth/registro (público: solo crea clientes; vendedores y admins los da de alta el admin)
@@ -22,12 +22,27 @@ export const authController = {
       return res.status(400).json({ error: 'El código postal debe ser un número válido' });
     }
 
+    // La contraseña se guarda hasheada, nunca en texto plano
     const passwordHash = await bcrypt.hash(password, 10);
 
     try {
-      const usuario = await usuariosRepository.crearCliente({
-        nombre, email, passwordHash, telefono, direccion, cod_postal, provincia,
+      // usuarios + clientes se guardan juntos: si falla uno, no se guarda ninguno
+      const usuario = await conTransaccion(async (db) => {
+        const nuevo = await db.query(
+          `INSERT INTO usuarios (nombre, email, password, rol)
+           VALUES ($1, $2, $3, 'CLIENTE')
+           RETURNING id_usuario, nombre, email, rol, esta_activo`,
+          [nombre, email, passwordHash]
+        );
+
+        await db.query(
+          `INSERT INTO clientes (id_usuario, telefono, direccion, cod_postal, provincia)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [nuevo.rows[0].id_usuario, telefono || null, direccion || 'Sin especificar', cod_postal || 0, provincia || 'Sin especificar']
+        );
+        return nuevo.rows[0];
       });
+
       res.status(201).json({ mensaje: 'Usuario registrado con éxito', usuario });
     } catch (error) {
       if (error.code === '23505') {
@@ -45,7 +60,11 @@ export const authController = {
       return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
     }
 
-    const usuario = await usuariosRepository.buscarPorEmail(email);
+    const result = await pool.query(
+      'SELECT id_usuario, nombre, email, password, rol, esta_activo FROM usuarios WHERE email = $1',
+      [email]
+    );
+    const usuario = result.rows[0];
 
     // Mismo mensaje si el email no existe o la contraseña es incorrecta, para no revelar qué cuentas existen
     const esValida = usuario && await bcrypt.compare(String(password), usuario.password);
