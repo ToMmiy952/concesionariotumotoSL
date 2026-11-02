@@ -1,17 +1,29 @@
-import { obtenerVentas, PORCENTAJE_COMISION } from './ventasService'
-import { obtenerSesion } from '../auth/authService'
-import { mesActual } from '../../shared/utils/fechas'
+import { useEffect, useState } from 'react'
+import { listarVentasConDetalle, calcularComision, PORCENTAJE_COMISION } from './ventasService'
+import { mesActual, mesDeFecha, formatearFechaHora } from '../../shared/utils/fechas'
 
 const pesos = n =>
   n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })
 
 function ComisionesPage() {
-  const sesion = obtenerSesion()
-  const mias = obtenerVentas().filter(v => v.idVendedor === sesion.id)
-  const delMes = mias.filter(v => v.fecha.startsWith(mesActual()))
+  const [mias, setMias] = useState(null) // null mientras carga
+  const [error, setError] = useState(null)
 
-  const totalMes = delMes.reduce((acc, v) => acc + v.comision, 0)
-  const totalHistorico = mias.reduce((acc, v) => acc + v.comision, 0)
+  // GET /ventas + GET /ventas/:id: la API ya devuelve solo las ventas del vendedor logueado
+  useEffect(() => {
+    listarVentasConDetalle().then(r => {
+      if (!r.ok) return setError(r.error)
+      setMias(r.ventas.filter(v => v.tipo === 'Moto'))
+    })
+  }, [])
+
+  if (error) return <div className="alert alert-danger">{error}</div>
+  if (mias === null) return <p className="text-secondary">Cargando comisiones...</p>
+
+  // la comisión no se guarda: se calcula sobre el monto de cada venta
+  const delMes = mias.filter(v => mesDeFecha(v.fecha) === mesActual())
+  const totalMes = delMes.reduce((acc, v) => acc + calcularComision(v.monto), 0)
+  const totalHistorico = mias.reduce((acc, v) => acc + calcularComision(v.monto), 0)
 
   return (
     <section>
@@ -48,10 +60,10 @@ function ComisionesPage() {
             <tbody>
               {mias.map(v => (
                 <tr key={v.id}>
-                  <td>{v.fecha}</td>
-                  <td>{v.motoModelo}</td>
+                  <td>{formatearFechaHora(v.fecha)}</td>
+                  <td>{v.items.map(i => i.nombre).join(', ')}</td>
                   <td className="text-end">{pesos(v.monto)}</td>
-                  <td className="text-end">{pesos(v.comision)}</td>
+                  <td className="text-end">{pesos(calcularComision(v.monto))}</td>
                 </tr>
               ))}
             </tbody>

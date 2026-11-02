@@ -6,32 +6,27 @@ import Navbar from './Navbar'
 import Footer from './Footer'
 import Carrito from '../../features/carrito/componentes/Carrito'
 import {useCarrito} from '../../features/carrito/hooks/useCarrito'
-import { obtenerSesion } from '../../features/auth/authService'
-import { registrarVentaOnline } from '../../features/vendedor/ventasService'
 import { useState } from 'react'
 
 function LayoutPublico({titulo, logo, enlacesParaNavbar, categorias, ayuda, contacto}) {
-    const { carrito, agregarProducto, eliminarProducto, cambiarCantidad, vaciarCarrito, cantidadTotal } = useCarrito();
+    const { carrito, agregarProducto, eliminarProducto, cambiarCantidad, vaciarCarrito, recargarCarrito, cantidadTotal } = useCarrito();
     const [carritoAbierto, setCarritoAbierto] = useState(false)
     // se incrementa con cada compra para que las páginas vuelvan a leer el stock actualizado
     const [versionStock, setVersionStock] = useState(0)
 
-    // Paga el carrito: registra la venta online, descuenta stock y vacía el carrito
-    function comprar() {
-        const sesion = obtenerSesion()
-        if (!sesion || sesion.rol !== 'cliente') {
-            alert('Para comprar accesorios tenés que ingresar con una cuenta de cliente.')
-            return
+    // Las acciones del carrito devuelven { ok, error }: si la API rechaza algo (por ejemplo, falta de stock) se avisa
+    function avisarSiFallo(accion) {
+        return async (...args) => {
+            const r = await accion(...args)
+            if (r && !r.ok) alert(r.error)
+            return r
         }
-        const resultado = registrarVentaOnline(sesion, carrito)
-        if (!resultado.ok) {
-            alert(resultado.error)
-            return
-        }
-        vaciarCarrito()
-        setCarritoAbierto(false)
+    }
+
+    // La compra la hace la pantalla de pago (POST /ventas/online): acá solo se refresca el carrito y el stock
+    async function compraRealizada() {
+        await recargarCarrito()
         setVersionStock(v => v + 1)
-        alert(`¡Compra realizada con éxito! Total: $${resultado.venta.monto.toLocaleString('es-AR')}. Podés ver el detalle en "Mis pedidos".`)
     }
 
     return(
@@ -42,12 +37,11 @@ function LayoutPublico({titulo, logo, enlacesParaNavbar, categorias, ayuda, cont
                 abierto={carritoAbierto}
                 onCerrar={() => setCarritoAbierto(false)}
                 carrito={carrito}
-                eliminarProducto={eliminarProducto}
-                cambiarCantidad={cambiarCantidad}
+                eliminarProducto={avisarSiFallo(eliminarProducto)}
+                cambiarCantidad={avisarSiFallo(cambiarCantidad)}
                 vaciarCarrito={vaciarCarrito}
-                onComprar={comprar}
             />
-            <main> <Outlet context={{ carrito, agregarProducto, eliminarProducto, vaciarCarrito, versionStock }} /> </main>
+            <main> <Outlet context={{ carrito, agregarProducto, eliminarProducto, vaciarCarrito, compraRealizada, versionStock }} /> </main>
             <Footer logo={logo} categorias={categorias} ayuda={ayuda} contacto={contacto} />
         </>
     )

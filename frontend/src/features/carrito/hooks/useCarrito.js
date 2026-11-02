@@ -1,75 +1,72 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useLocation } from 'react-router'
 import { obtenerSesion } from '../../auth/authService'
-import { buscarAccesorio } from '../../catalogo/servicios/accesorioService'
+import {
+    obtenerCarrito,
+    agregarAlCarrito,
+    cambiarCantidadItem,
+    quitarDelCarrito,
+} from '../carritoService'
 
-// El carrito se guarda por usuario: cada cuenta ve el suyo y se conserva al cerrar sesión y volver a ingresar
-function claveCarrito() {
-    const sesion = obtenerSesion();
-    return sesion ? `carrito_${sesion.id}` : 'carrito_anonimo';
-}
-
+// El carrito vive en la base de datos (uno por cliente): acá solo se guarda una copia para mostrarlo.
+// Las acciones devuelven { ok: true } o { ok: false, error } y siempre vuelven a leer el carrito de la API.
 export function useCarrito() {
-    const [clave] = useState(claveCarrito);
+    const [items, setItems] = useState([])
+    // useLocation hace que el hook se vuelva a evaluar al navegar (por ejemplo, justo después de iniciar sesión)
+    useLocation()
+    const sesion = obtenerSesion()
+    const esCliente = sesion?.rol === 'cliente'
+    const idSesion = sesion?.id
+    // Sin sesión de cliente no hay carrito (la API responde 401/403)
+    const carrito = esCliente ? items : []
 
-    // 1. Inicializamos desde localStorage para conservar el estado tras recargar
-    const [carrito, setCarrito] = useState(() => {
-        try {
-            return JSON.parse(localStorage.getItem(clave)) || [];
-        } catch {
-            return [];
-        }
-    });
+    const recargar = useCallback(async () => {
+        if (!esCliente) return
+        const r = await obtenerCarrito()
+        setItems(r.ok ? r.items : [])
+    }, [esCliente])
 
-    // 2. Efecto para sincronizar los cambios en localStorage
+    // Se vuelve a leer al entrar o al cambiar de cuenta
     useEffect(() => {
-        localStorage.setItem(clave, JSON.stringify(carrito));
-    }, [clave, carrito]);
+        if (!esCliente) return
+        obtenerCarrito().then((r) => setItems(r.ok ? r.items : []))
+    }, [esCliente, idSesion])
 
-    // 3. Función para agregar un producto evaluando talle e ID
-    function agregarProducto(nuevoProducto) {
-        setCarrito((prevCarrito) => {
-            const existe = prevCarrito.find(
-                (item) => item.id === nuevoProducto.id && item.talle === nuevoProducto.talle
-            );
-
-            if (existe) {
-                return prevCarrito.map((item) =>
-                    item.id === nuevoProducto.id && item.talle === nuevoProducto.talle
-                        ? { ...item, cantidad: item.cantidad + 1 }
-                        : item
-                );
-            }
-
-            return [...prevCarrito, { ...nuevoProducto, cantidad: 1 }];
-        });
+    // Ejecuta una acción sobre el carrito y refresca la copia local
+    async function ejecutar(accion) {
+        const r = await accion()
+        await recargar()
+        return r
     }
 
-    // 4. Función para eliminar un producto (útil para la vista del carrito)
-    function eliminarProducto(id, talle) {
-        setCarrito((prevCarrito) =>
-            prevCarrito.filter((item) => !(item.id === id && item.talle === talle))
-        );
+    function agregarProducto(producto) {
+        if (!esCliente) return Promise.resolve({ ok: false, error: 'Para comprar accesorios tenés que ingresar con una cuenta de cliente.' })
+        return ejecutar(() => agregarAlCarrito(producto.id, 1))
     }
 
-    // 5. Sumar o restar unidades de un ítem (nunca baja de 1 ni supera el stock del accesorio)
+    // El carrito de la API tiene un solo renglón por accesorio, por eso alcanza con el id
+    function eliminarProducto(id) {
+        const item = carrito.find((i) => i.id === id)
+        if (!item) return Promise.resolve({ ok: false, error: 'El producto ya no está en el carrito.' })
+        return ejecutar(() => quitarDelCarrito(item.idItem))
+    }
+
+    // Sumar o restar unidades (nunca baja de 1: la API valida el stock)
     function cambiarCantidad(id, talle, delta) {
-        setCarrito((prevCarrito) =>
-            prevCarrito.map((item) => {
-                if (!(item.id === id && item.talle === talle)) return item;
-                const stock = buscarAccesorio(id)?.stock ?? item.cantidad;
-                const cantidad = Math.min(Math.max(1, item.cantidad + delta), Math.max(1, stock));
-                return { ...item, cantidad };
-            })
-        );
+        const item = carrito.find((i) => i.id === id)
+        if (!item) return Promise.resolve({ ok: false, error: 'El producto ya no está en el carrito.' })
+        const cantidad = Math.max(1, item.cantidad + delta)
+        if (cantidad === item.cantidad) return Promise.resolve({ ok: true })
+        return ejecutar(() => cambiarCantidadItem(item.idItem, cantidad))
     }
 
-    // 6. Función para vaciar el carrito
-    function vaciarCarrito() {
-        setCarrito([]);
+    // La API no tiene un endpoint para vaciar: se quitan los ítems de a uno
+    async function vaciarCarrito() {
+        await Promise.all(carrito.map((i) => quitarDelCarrito(i.idItem)))
+        await recargar()
     }
 
-    // Calculamos el total de ítems
-    const cantidadTotal = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+    const cantidadTotal = carrito.reduce((acc, item) => acc + item.cantidad, 0)
 
     return {
         carrito,
@@ -77,6 +74,7 @@ export function useCarrito() {
         eliminarProducto,
         cambiarCantidad,
         vaciarCarrito,
-        cantidadTotal
-    };
+        recargarCarrito: recargar,
+        cantidadTotal,
+    }
 }

@@ -1,7 +1,7 @@
 import ventasIniciales from '../../../../backend/data/ventas.json'
 import { obtenerMoto, cambiarStock } from '../admin/productosService'
-import { buscarAccesorio, descontarStockAccesorio } from '../catalogo/servicios/accesorioService'
 import { hoyLocal, horaLocal } from '../../shared/utils/fechas'
+import { apiJson, mensajeDeError } from '../../shared/utils/api'
 
 const CLAVE = 'ventas'
 export const PORCENTAJE_COMISION = 10 // % por defecto
@@ -52,48 +52,50 @@ export function registrarVenta(idMoto, vendedor) {
   return true
 }
 
-// Compra online de accesorios desde el carrito de un cliente. No genera comisión (no hay vendedor).
-export function registrarVentaOnline(cliente, items) {
-  if (!items.length) return { ok: false, error: 'El carrito está vacío.' }
+// ---- API: ventas (POST /ventas/online, GET /ventas, GET /ventas/:id) ----
+// Todas devuelven { ok: true, ... } o { ok: false, error }
 
-  // un mismo accesorio puede estar en varios talles: el stock se valida sobre el total
-  const pedido = {}
-  items.forEach(i => { pedido[i.id] = (pedido[i.id] || 0) + i.cantidad })
-
-  for (const [id, cantidad] of Object.entries(pedido)) {
-    const accesorio = buscarAccesorio(id)
-    if (!accesorio) return { ok: false, error: 'Uno de los accesorios ya no está disponible.' }
-    if (accesorio.stock < cantidad) {
-      return { ok: false, error: `Stock insuficiente de ${accesorio.nombre} (disponible: ${accesorio.stock}).` }
-    }
+// Pasa los importes (texto en la API) a número
+function normalizarVenta(v) {
+  return {
+    id: v.id_venta,
+    fecha: v.fecha,
+    monto: Number(v.monto_total),
+    tipo: v.tipo_venta,
+    idCliente: v.id_cliente,
+    idVendedor: v.id_vendedor,
+    items: (v.detalle ?? []).map(d => ({
+      idProducto: d.id_producto,
+      nombre: d.producto,
+      cantidad: d.cantidad,
+      precioUnitario: Number(d.precio_unitario_historico),
+    })),
   }
+}
 
-  // el precio se toma del catálogo y queda guardado como precio histórico de la compra
-  const detalle = items.map(i => ({
-    idAccesorio: i.id,
-    nombre: i.nombre,
-    talle: i.talle,
-    cantidad: i.cantidad,
-    precioUnitario: buscarAccesorio(i.id).precio,
-  }))
-  const monto = detalle.reduce((acc, d) => acc + d.precioUnitario * d.cantidad, 0)
+// Paga el carrito del cliente: la API crea la venta, descuenta el stock y vacía el carrito
+export async function pagarCarrito() {
+  const r = await apiJson('/ventas/online', { method: 'POST' })
+  return r.ok ? { ok: true, venta: normalizarVenta(r.data) } : { ok: false, error: mensajeDeError(r) }
+}
 
-  const ventas = obtenerVentas()
-  const venta = {
-    id: siguienteId(ventas),
-    tipo: 'Accesorio Online',
-    idCliente: cliente.id,
-    nombreCliente: cliente.nombre,
-    idVendedor: null,
-    nombreVendedor: 'Online',
-    descripcion: detalle.map(d => `${d.nombre}${d.talle ? ` (${d.talle})` : ''} x${d.cantidad}`).join(', '),
-    items: detalle,
-    fecha: hoyLocal(),
-    hora: horaLocal(),
-    monto,
-    comision: 0,
-  }
-  guardar([...ventas, venta])
-  Object.entries(pedido).forEach(([id, cantidad]) => descontarStockAccesorio(id, cantidad))
-  return { ok: true, venta }
+// Ventas visibles para el usuario logueado (cliente: las suyas, vendedor: las suyas, admin: todas), sin detalle
+export async function listarVentas() {
+  const r = await apiJson('/ventas')
+  return r.ok ? { ok: true, ventas: r.data.map(normalizarVenta) } : { ok: false, error: mensajeDeError(r) }
+}
+
+export async function obtenerVentaPorId(id) {
+  const r = await apiJson(`/ventas/${id}`)
+  return r.ok ? { ok: true, venta: normalizarVenta(r.data) } : { ok: false, error: mensajeDeError(r) }
+}
+
+// El listado no trae el detalle: se pide el de cada venta. Los filtros (tipo, mes) los hace quien lo use, en el front
+export async function listarVentasConDetalle() {
+  const lista = await listarVentas()
+  if (!lista.ok) return lista
+  const detalles = await Promise.all(lista.ventas.map(v => obtenerVentaPorId(v.id)))
+  const fallo = detalles.find(d => !d.ok)
+  if (fallo) return fallo
+  return { ok: true, ventas: detalles.map(d => d.venta) }
 }

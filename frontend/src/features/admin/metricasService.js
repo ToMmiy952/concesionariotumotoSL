@@ -1,15 +1,7 @@
-import { obtenerMotos } from './productosService'
-import { obtenerVentas } from '../vendedor/ventasService'
-import { mesActual } from '../../shared/utils/fechas'
+import { apiJson, mensajeDeError } from '../../shared/utils/api'
 
-export function calcularMetricas() {
-  const ventas = obtenerVentas()
-  const ventasDelMes = ventas.filter(v => v.fecha.startsWith(mesActual()))
-
-  return {
-    totalVentas: ventas.length,
-    ingresosMes: ventasDelMes.reduce((acc, v) => acc + v.monto, 0),
-    comisionesMes: ventasDelMes.reduce((acc, v) => acc + (v.comision || 0), 0),
-    sinStock: obtenerMotos().filter(m => m.stock === 0).length,
-  }
+// GET /metricas/admin (solo administrador). Devuelve { ok: true, metricas } o { ok: false, error }
+export async function obtenerMetricasAdmin() {
+  const r = await apiJson('/metricas/admin')
+  return r.ok ? { ok: true, metricas: r.data } : { ok: false, error: mensajeDeError(r) }
 }
