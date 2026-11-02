@@ -7,10 +7,7 @@ import { permitirRoles } from '../middlewares/permitirRoles.js';
 const router = Router();
 router.param('id', validarId);
 
-// Toda la gestión de usuarios es exclusiva del administrador
-router.use(verificarToken, permitirRoles('ADMINISTRADOR'));
-
-router.get('/', usuariosController.listar);
-router.patch('/:id/activo', usuariosController.cambiarActivo);
+// La gestión de cuentas es exclusiva del administrador
+router.patch('/:id/activo', verificarToken, permitirRoles('ADMINISTRADOR'), usuariosController.cambiarActivo);
 
 export default router;

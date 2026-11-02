@@ -1,5 +1,5 @@
 import { pool, conTransaccion } from '../config/db.js';
-import { enteroPositivo, fechaValida } from '../middlewares/validaciones.js';
+import { enteroPositivo } from '../middlewares/validaciones.js';
 import { sincronizarEstadoMoto } from './reservas.controller.js';
 
 const redondear = (n) => Math.round(n * 100) / 100;
@@ -156,38 +156,25 @@ export const ventasController = {
     res.status(201).json(await buscarVentaConDetalle(idVenta));
   },
 
-  // GET /api/v1/ventas (cliente: las suyas, vendedor: las suyas, admin: todas; filtro ?desde= ?hasta=)
+  // GET /api/v1/ventas (cliente: las suyas, vendedor: las suyas, admin: todas; los filtros los hace el front)
   async listar(req, res) {
-    const { desde, hasta } = req.query;
-    if ((desde && !fechaValida(desde)) || (hasta && !fechaValida(hasta))) {
-      return res.status(400).json({ error: 'Las fechas deben tener formato YYYY-MM-DD' });
-    }
-
     const { rol, id_usuario } = req.usuario;
     const params = [];
-    const where = [];
+    let where = '';
 
-    // El alcance depende del rol: el admin no tiene filtro de propietario
+    // Esto no es un filtro de la lista sino de permisos: nadie ve las ventas de otro. El admin ve todas
     if (rol === 'CLIENTE') {
       params.push(id_usuario);
-      where.push(`v.id_cliente = $${params.length}`);
+      where = 'WHERE v.id_cliente = $1';
     } else if (rol === 'VENDEDOR') {
       params.push(id_usuario);
-      where.push(`v.id_vendedor = $${params.length}`);
-    }
-    if (desde) {
-      params.push(desde);
-      where.push(`v.fecha >= $${params.length}::date`);
-    }
-    if (hasta) {
-      params.push(hasta);
-      where.push(`v.fecha < ($${params.length}::date + 1)`);
+      where = 'WHERE v.id_vendedor = $1';
     }
 
     const result = await pool.query(
       `SELECT v.id_venta, v.fecha, v.monto_total, v.tipo_venta, v.id_cliente, v.id_vendedor
        FROM ventas v
-       ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
+       ${where}
        ORDER BY v.fecha DESC, v.id_venta DESC`,
       params
     );

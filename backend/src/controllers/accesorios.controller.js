@@ -9,18 +9,11 @@ const SELECT_ACCESORIO = `
   INNER JOIN accesorios a ON p.id_producto = a.id_producto`;
 
 export const accesoriosController = {
-  // GET /api/v1/accesorios (público, filtro ?categoria=)
+  // GET /api/v1/accesorios (público: lista todos los accesorios activos; los filtros los hace el front)
   async listar(req, res) {
-    const { categoria } = req.query;
-    const params = [];
-    let query = `${SELECT_ACCESORIO} WHERE p.esta_activo = true AND p.tipo = 'ACCESORIO'`;
-
-    if (categoria) {
-      params.push(categoria);
-      query += ` AND a.categoria = $${params.length}`;
-    }
-
-    const result = await pool.query(`${query} ORDER BY p.id_producto DESC`, params);
+    const result = await pool.query(
+      `${SELECT_ACCESORIO} WHERE p.esta_activo = true AND p.tipo = 'ACCESORIO' ORDER BY p.id_producto DESC`
+    );
     res.json(result.rows);
   },
 
