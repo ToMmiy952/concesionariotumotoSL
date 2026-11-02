@@ -859,68 +859,6 @@
       "name": "Usuarios (admin)",
       "item": [
         {
-          "name": "Listar usuarios",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/usuarios",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "usuarios"
-              ]
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Listar usuarios por rol",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/usuarios?rol=VENDEDOR",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "usuarios"
-              ],
-              "query": [
-                {
-                  "key": "rol",
-                  "value": "VENDEDOR"
-                }
-              ]
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
-                ]
-              }
-            }
-          ]
-        },
-        {
           "name": "Desactivar usuario",
           "request": {
             "method": "PATCH",
@@ -1047,78 +985,6 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Responde 404', () => pm.response.to.have.status(404));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Rol invalido (400)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/usuarios?rol=XXX",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "usuarios"
-              ],
-              "query": [
-                {
-                  "key": "rol",
-                  "value": "XXX"
-                }
-              ]
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 400', () => pm.response.to.have.status(400));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Listar usuarios como cliente (403)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/usuarios",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "usuarios"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenCliente}}",
-                  "type": "string"
-                }
-              ]
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 403', () => pm.response.to.have.status(403));"
                 ]
               }
             }
@@ -1525,27 +1391,17 @@
           ]
         },
         {
-          "name": "Listar ventas (admin) con fechas",
+          "name": "Listar ventas (admin)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/ventas?desde=2026-01-01&hasta=2026-12-31",
+              "raw": "{{baseUrl}}/ventas",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "ventas"
-              ],
-              "query": [
-                {
-                  "key": "desde",
-                  "value": "2026-01-01"
-                },
-                {
-                  "key": "hasta",
-                  "value": "2026-12-31"
-                }
               ]
             },
             "auth": {
@@ -1567,50 +1423,6 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Responde 200', () => pm.response.to.have.status(200));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Fecha invalida (400)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/ventas?desde=hola",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "ventas"
-              ],
-              "query": [
-                {
-                  "key": "desde",
-                  "value": "hola"
-                }
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAdmin}}",
-                  "type": "string"
-                }
-              ]
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 400', () => pm.response.to.have.status(400));"
                 ]
               }
             }
@@ -1748,112 +1560,18 @@
       "name": "Metricas",
       "item": [
         {
-          "name": "Metricas del vendedor",
+          "name": "Metricas del admin",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/metricas/vendedor",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "metricas",
-                "vendedor"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenVendedor}}",
-                  "type": "string"
-                }
-              ]
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Metricas del vendedor con fechas",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/metricas/vendedor?desde=2026-01-01&hasta=2026-12-31",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "metricas",
-                "vendedor"
-              ],
-              "query": [
-                {
-                  "key": "desde",
-                  "value": "2026-01-01"
-                },
-                {
-                  "key": "hasta",
-                  "value": "2026-12-31"
-                }
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenVendedor}}",
-                  "type": "string"
-                }
-              ]
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Metricas del admin (mensual)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/metricas/admin?periodo=mensual",
+              "raw": "{{baseUrl}}/metricas/admin",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "metricas",
                 "admin"
-              ],
-              "query": [
-                {
-                  "key": "periodo",
-                  "value": "mensual"
-                }
               ]
             }
           },
@@ -1865,76 +1583,6 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Responde 200', () => pm.response.to.have.status(200));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Metricas del admin (semanal)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/metricas/admin?periodo=semanal",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "metricas",
-                "admin"
-              ],
-              "query": [
-                {
-                  "key": "periodo",
-                  "value": "semanal"
-                }
-              ]
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Periodo invalido (400)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/metricas/admin?periodo=anual",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "metricas",
-                "admin"
-              ],
-              "query": [
-                {
-                  "key": "periodo",
-                  "value": "anual"
-                }
-              ]
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 400', () => pm.response.to.have.status(400));"
                 ]
               }
             }

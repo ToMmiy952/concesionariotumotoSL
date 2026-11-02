@@ -1,81 +1,29 @@
 import { pool } from '../config/db.js';
 import { PORCENTAJE_COMISION } from '../config/negocio.js';
-import { fechaValida } from '../middlewares/validaciones.js';
 
 const redondear = (n) => Math.round(n * 100) / 100;
 // La comisión no se guarda en la base: se calcula a partir del monto de cada venta
 const comisionDe = (monto) => redondear((Number(monto) * PORCENTAJE_COMISION) / 100);
 
-// Ventana de cada período: semanal = últimas 8 semanas, mensual = últimos 12 meses
-const PERIODOS = {
-  semanal: { unidad: 'week', ventana: '7 weeks' },
-  mensual: { unidad: 'month', ventana: '11 months' },
-};
+// Ventas agrupadas por semana o por mes dentro de una ventana hacia atrás
+const ventasPorPeriodo = (unidad, ventana) =>
+  pool.query(
+    `SELECT date_trunc($1, fecha)::date AS periodo,
+            COUNT(*)::int AS cantidad_ventas,
+            SUM(monto_total) AS monto_total
+     FROM ventas
+     WHERE fecha >= date_trunc($1, now()) - $2::interval
+     GROUP BY 1
+     ORDER BY 1`,
+    [unidad, ventana]
+  );
 
 export const metricasController = {
-  // GET /api/v1/metricas/vendedor (vendedor: sus ventas de motos y comisiones; filtro ?desde= ?hasta=)
-  async deVendedor(req, res) {
-    const { desde, hasta } = req.query;
-    if ((desde && !fechaValida(desde)) || (hasta && !fechaValida(hasta))) {
-      return res.status(400).json({ error: 'Las fechas deben tener formato YYYY-MM-DD' });
-    }
-
-    const params = [req.usuario.id_usuario];
-    let filtro = '';
-    if (desde) {
-      params.push(desde);
-      filtro += ` AND v.fecha >= $${params.length}::date`;
-    }
-    if (hasta) {
-      params.push(hasta);
-      filtro += ` AND v.fecha < ($${params.length}::date + 1)`;
-    }
-
-    const result = await pool.query(
-      `SELECT v.id_venta, v.fecha, v.monto_total, p.marca || ' ' || m.modelo AS producto
-       FROM ventas v
-       INNER JOIN detalle_venta d ON d.id_venta = v.id_venta
-       INNER JOIN productos p ON d.id_producto = p.id_producto
-       INNER JOIN motos m ON m.id_producto = p.id_producto
-       WHERE v.tipo_venta = 'Moto' AND v.id_vendedor = $1${filtro}
-       ORDER BY v.fecha DESC, v.id_venta DESC`,
-      params
-    );
-
-    const ventas = result.rows.map((v) => ({
-      ...v,
-      monto_total: Number(v.monto_total),
-      comision: comisionDe(v.monto_total),
-    }));
-
-    res.json({
-      porcentaje_comision: PORCENTAJE_COMISION,
-      cantidad_ventas: ventas.length,
-      comision_total: redondear(ventas.reduce((acc, v) => acc + v.comision, 0)),
-      ventas,
-    });
-  },
-
-  // GET /api/v1/metricas/admin (admin: reportes; ?periodo=semanal|mensual)
+  // GET /api/v1/metricas/admin (admin: reportes de ventas)
   async deAdmin(req, res) {
-    const periodo = req.query.periodo ?? 'mensual';
-    if (!PERIODOS[periodo]) {
-      return res.status(400).json({ error: `El período debe ser: ${Object.keys(PERIODOS).join(' o ')}` });
-    }
-    const { unidad, ventana } = PERIODOS[periodo];
-
-    const [porPeriodo, accesorios, motos, vendedores] = await Promise.all([
-      // ventas agrupadas por semana o mes
-      pool.query(
-        `SELECT date_trunc($1, fecha)::date AS periodo,
-                COUNT(*)::int AS cantidad_ventas,
-                SUM(monto_total) AS monto_total
-         FROM ventas
-         WHERE fecha >= date_trunc($1, now()) - $2::interval
-         GROUP BY 1
-         ORDER BY 1`,
-        [unidad, ventana]
-      ),
+    const [semanales, mensuales, accesorios, motos, vendedores] = await Promise.all([
+      ventasPorPeriodo('week', '7 weeks'), // últimas 8 semanas
+      ventasPorPeriodo('month', '11 months'), // últimos 12 meses
       // 5 accesorios más vendidos
       pool.query(
         `SELECT a.id_producto, a.nombre,
@@ -115,8 +63,8 @@ export const metricasController = {
     const conMontoNumerico = (fila) => ({ ...fila, monto_total: Number(fila.monto_total) });
 
     res.json({
-      periodo,
-      ventas_por_periodo: porPeriodo.rows.map(conMontoNumerico),
+      ventas_semanales: semanales.rows.map(conMontoNumerico),
+      ventas_mensuales: mensuales.rows.map(conMontoNumerico),
       accesorios_mas_vendidos: accesorios.rows.map(conMontoNumerico),
       motos_mas_vendidas: motos.rows.map(conMontoNumerico),
       desempeno_vendedores: vendedores.rows.map((v) => ({

@@ -89,33 +89,22 @@ export const reservasController = {
     res.status(201).json({ mensaje: 'Reserva de cita registrada con éxito por 48 horas', reserva });
   },
 
-  // GET /api/v1/reservas (vendedor o admin, filtro ?estado=)
+  // GET /api/v1/reservas (vendedor o admin: lista todas las reservas; los filtros los hace el front)
   async listar(req, res) {
-    const estado = req.query.estado?.trim().toLowerCase();
-    if (estado && !ESTADOS_RESERVA.includes(estado)) {
-      return res.status(400).json({ error: 'Estado de reserva no válido' });
-    }
-
     await expirarVencidas();
 
     // moto_sin_stock marca las reservas vigentes cuya moto se agotó, para que el vendedor contacte al cliente
-    const params = [];
-    let query = `
-      SELECT r.id_reserva, r.id_moto, p.marca, m.modelo,
-             r.nombre_interesado, r.email_interesado, r.telefono_interesado,
-             r.fecha_reserva, r.fecha_vencimiento, r.estado_reserva,
-             r.horario_preferido, r.comentarios,
-             (r.estado_reserva = 'vigente' AND p.stock = 0) AS moto_sin_stock
-      FROM reservas r
-      INNER JOIN motos m ON r.id_moto = m.id_producto
-      INNER JOIN productos p ON m.id_producto = p.id_producto`;
-
-    if (estado) {
-      params.push(estado);
-      query += ' WHERE r.estado_reserva = $1';
-    }
-
-    const result = await pool.query(`${query} ORDER BY r.fecha_reserva DESC`, params);
+    const result = await pool.query(
+      `SELECT r.id_reserva, r.id_moto, p.marca, m.modelo,
+              r.nombre_interesado, r.email_interesado, r.telefono_interesado,
+              r.fecha_reserva, r.fecha_vencimiento, r.estado_reserva,
+              r.horario_preferido, r.comentarios,
+              (r.estado_reserva = 'vigente' AND p.stock = 0) AS moto_sin_stock
+       FROM reservas r
+       INNER JOIN motos m ON r.id_moto = m.id_producto
+       INNER JOIN productos p ON m.id_producto = p.id_producto
+       ORDER BY r.fecha_reserva DESC`
+    );
     res.json(result.rows);
   },
 

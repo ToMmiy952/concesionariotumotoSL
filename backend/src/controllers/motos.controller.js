@@ -9,22 +9,9 @@ const SELECT_MOTO = `
   INNER JOIN motos m ON p.id_producto = m.id_producto`;
 
 export const motosController = {
-  // GET /api/v1/motos (público, filtros ?marca= ?estado=)
+  // GET /api/v1/motos (público: lista todas las motos activas; los filtros los hace el front)
   async listar(req, res) {
-    const { marca, estado } = req.query;
-    const params = [];
-    let query = `${SELECT_MOTO} WHERE p.esta_activo = true`;
-
-    if (marca) {
-      params.push(`%${marca}%`);
-      query += ` AND p.marca ILIKE $${params.length}`;
-    }
-    if (estado) {
-      params.push(estado);
-      query += ` AND m.estado = $${params.length}`;
-    }
-
-    const result = await pool.query(`${query} ORDER BY p.id_producto DESC`, params);
+    const result = await pool.query(`${SELECT_MOTO} WHERE p.esta_activo = true ORDER BY p.id_producto DESC`);
     res.json(result.rows);
   },
 
