@@ -20,3 +20,10 @@ export function mesActual() {
 export function formatearFechaHora(iso) {
   return new Date(iso).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
 }
+
+
+// "2026-10" a partir de una fecha ISO de la API, en hora local
+export function mesDeFecha(iso) {
+  const d = new Date(iso)
+  return `${d.getFullYear()}-${dosDigitos(d.getMonth() + 1)}`
+}

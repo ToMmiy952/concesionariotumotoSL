@@ -67,7 +67,7 @@ function DetalleAccesorio() {
         maximumFractionDigits: 0
     }).format(accesorio.precio);
 
-    function manejadorComprar() {
+    async function manejadorComprar() {
         const sesion = obtenerSesion();
 
         if (!sesion) {
@@ -86,14 +86,18 @@ function DetalleAccesorio() {
             return;
         }
 
-        // Agregar el producto al carrito
-        agregarProducto({
+        // Agregar el producto al carrito (POST /carrito/items; la API vuelve a validar el stock)
+        const r = await agregarProducto({
             id: accesorio.id,
             nombre: accesorio.nombre,
             precio: accesorio.precio,
             imagen: accesorio.imagen,
             talle: talleElegido
         });
+        if (!r.ok) {
+            setMensaje({ tipo: 'warning', texto: r.error });
+            return;
+        }
         setMensaje({ tipo: 'success', texto: `${accesorio.nombre} (talle ${talleElegido}) se agregó al carrito.` });
     }
 

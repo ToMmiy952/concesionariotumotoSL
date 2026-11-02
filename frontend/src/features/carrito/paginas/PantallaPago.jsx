@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { useNavigate, useOutletContext, Link } from 'react-router'
 import { obtenerSesion } from '../../auth/authService'
+import { pagarCarrito } from '../../vendedor/ventasService'
 
 function PantallaPago() {
   const navigate = useNavigate()
-  const { carrito, vaciarCarrito } = useOutletContext()
+  const { carrito, compraRealizada } = useOutletContext()
+  const [error, setError] = useState(null)
+  const [enviando, setEnviando] = useState(false)
   const usuario = obtenerSesion() || {}
 
   // Estado del formulario controlado
@@ -35,11 +38,19 @@ function PantallaPago() {
     0
   )
 
-  function handleSubmit(e) {
+  // Confirma la compra: POST /ventas/online descuenta el stock y vacía el carrito en la base de datos
+  async function handleSubmit(e) {
     e.preventDefault()
-    // Simulación de finalización exitosa
-    alert('¡Compra realizada con éxito! Muchas gracias.')
-    if (vaciarCarrito) vaciarCarrito()
+    setError(null)
+    setEnviando(true)
+    const r = await pagarCarrito()
+    setEnviando(false)
+    if (!r.ok) {
+      setError(r.error)
+      return
+    }
+    await compraRealizada()
+    alert(`¡Compra realizada con éxito! Total: $${r.venta.monto.toLocaleString('es-AR')}. Muchas gracias.`)
     navigate('/mis-pedidos')
   }
 
@@ -317,8 +328,10 @@ function PantallaPago() {
                   </span>
                 </div>
 
-                <button type="submit" className="btn btn-success btn-lg w-100">
-                  Confirmar Compra
+                {error && <div className="alert alert-danger small" role="alert">{error}</div>}
+
+                <button type="submit" className="btn btn-success btn-lg w-100" disabled={enviando}>
+                  {enviando ? 'Procesando...' : 'Confirmar Compra'}
                 </button>
               </div>
             </div>
