@@ -15,6 +15,8 @@ import LayoutGestor from './shared/layout/LayoutGestor'
 import PanelInicioPage from './features/admin/PanelInicioPage'
 import ProductosPage from './features/admin/ProductosPage'
 import ProductoFormPage from './features/admin/ProductoFormPage'
+import AccesoriosPage from './features/admin/AccesoriosPage'
+import AccesorioFormPage from './features/admin/AccesorioFormPage'
 import { protegerRuta, redirigirSiHaySesion } from './features/auth/loaders'
 import PedidosPage from './features/vendedor/PedidosPage'
 import StockPage from './features/vendedor/StockPage'
@@ -101,6 +103,9 @@ export const router = createBrowserRouter([
         { path: 'productos', element: <ProductosPage />, loader: protegerRuta(['administrador']) },
         { path: 'productos/nuevo', element: <ProductoFormPage />, loader: protegerRuta(['administrador']) },
         { path: 'productos/:id/editar', element: <ProductoFormPage />, loader: protegerRuta(['administrador']) },
+        { path: 'accesorios', element: <AccesoriosPage />, loader: protegerRuta(['administrador']) },
+        { path: 'accesorios/nuevo', element: <AccesorioFormPage />, loader: protegerRuta(['administrador']) },
+        { path: 'accesorios/:id/editar', element: <AccesorioFormPage />, loader: protegerRuta(['administrador']) },
         { path: 'comisiones', element: <ComisionesPage />, loader: protegerRuta(['vendedor']) },
       ],
     },

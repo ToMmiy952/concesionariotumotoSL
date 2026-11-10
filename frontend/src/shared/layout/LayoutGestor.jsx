@@ -23,6 +23,7 @@ function LayoutGestor() {
             <>
               <NavLink className="nav-link" to="/gestor" end><i className="bi bi-speedometer2 me-2"></i>Panel</NavLink>
               <NavLink className="nav-link" to="/gestor/productos"><i className="bi bi-bicycle me-2"></i>Motos</NavLink>
+              <NavLink className="nav-link" to="/gestor/accesorios"><i className="bi bi-bag me-2"></i>Accesorios</NavLink>
             </>
           )}
           <NavLink className="nav-link" to="/gestor/pedidos"><i className="bi bi-inbox me-2"></i>Pedidos</NavLink>

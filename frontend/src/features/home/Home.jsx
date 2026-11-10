@@ -1,18 +1,38 @@
+import { useEffect, useState } from 'react'
 import comprasegura from '../../assets/comprasegura.png'
 import debcredito from '../../assets/debcredito.png'
 import img1pcarrusel from '../../assets/img1pcarrusel.png'
 import elegisiemprequisiste from '../../assets/elegisiemprequisiste.png'
 import img2pcarru from '../../assets/img2pcarru.png'
 import TarjetaMoto from '../catalogo/componentes/TarjetaMoto'
-import { obtenerMotos } from '../admin/productosService'
+import { obtenerMotos } from '../catalogo/servicios/motoService'
 import plan from '../../assets/plan.png'
 function Home() {
-    const motosData = obtenerMotos(); // mismas motos que el catálogo y el gestor
+    // Las motos salen de la API (PostgreSQL): mismas que el catálogo y el gestor
+    const [motos, setMotos] = useState([]);
+    const [cargando, setCargando] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        let cancelado = false;
+        async function cargar() {
+            try {
+                const datos = await obtenerMotos();
+                if (!cancelado) setMotos(datos);
+            } catch (err) {
+                if (!cancelado) setError(err.message || 'No fue posible cargar las motos.');
+            } finally {
+                if (!cancelado) setCargando(false);
+            }
+        } cargar();
+        return () => { cancelado = true };
+    }, []);
+
     const motosPorPagina = 4;
     const paginasCarrusel = [];
 
-    for (let i = 0; i < motosData.length; i += motosPorPagina) {
-        paginasCarrusel.push(motosData.slice(i, i + motosPorPagina));
+    for (let i = 0; i < motos.length; i += motosPorPagina) {
+        paginasCarrusel.push(motos.slice(i, i + motosPorPagina));
     }
     return (
         <>
@@ -112,7 +132,32 @@ function Home() {
                     data-bs-ride="carousel">
 
                     <div className="carousel-inner">
-                        {paginasCarrusel.map((grupoDeCuatro, indicePagina) => (
+                        {cargando && (
+                            <div className="carousel-item active">
+                                <div className="text-center py-5">
+                                    <div className="spinner-border text-primary" role="status">
+                                        <span className="visually-hidden">Cargando motos...</span>
+                                    </div>
+                                    <p className="mt-2 text-secondary mb-0">Cargando motos...</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {!cargando && error && (
+                            <div className="carousel-item active">
+                                <div className="alert alert-danger mx-3" role="alert">
+                                    <strong>Ocurrió un error:</strong> {error}
+                                </div>
+                            </div>
+                        )}
+
+                        {!cargando && !error && motos.length === 0 && (
+                            <div className="carousel-item active">
+                                <div className="alert alert-light border mx-3">No hay motos disponibles por el momento.</div>
+                            </div>
+                        )}
+
+                        {!cargando && !error && paginasCarrusel.map((grupoDeCuatro, indicePagina) => (
                             <div
                                 key={indicePagina}
                                 className={`carousel-item ${indicePagina === 0 ? "active" : ""}`}
@@ -121,8 +166,8 @@ function Home() {
                                 <div className="row g-3">
                                     {grupoDeCuatro.map((moto) => (
                                         <TarjetaMoto
-                                            key={moto.id}
-                                            id={moto.id}
+                                            key={moto.id_producto}
+                                            id={moto.id_producto}
                                             marca={moto.marca}
                                             modelo={moto.modelo}
                                             precio={moto.precio}
