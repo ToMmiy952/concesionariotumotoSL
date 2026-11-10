@@ -6,8 +6,8 @@ function GrillaAccesorios({accesoriosOrdenados}){
         <div className="catalogo-motos mt-3">
                     {accesoriosOrdenados.map((accesorio) => (
                         <TarjetaAccesorios
-                            key={accesorio.id}
-                            id={accesorio.id}
+                            key={accesorio.id_producto}
+                            id={accesorio.id_producto}
                             nombre={accesorio.nombre}                            
                             precio={accesorio.precio}
                             imagen={accesorio.imagen}

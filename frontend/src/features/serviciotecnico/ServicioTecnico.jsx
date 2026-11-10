@@ -12,7 +12,7 @@ function ServicioTecnico(){
   </p>
 
   <div className="contenedor-de-tabla table-responsive">
-    <table className="table table-bordered align-middle">
+    <table className="table table-bordered align-middle tabla-servicios">
       <caption id="titulo-tabla-service">
         Plan de mantenimiento preventivo y precios oficiales sugeridos
       </caption>
@@ -38,14 +38,14 @@ function ServicioTecnico(){
                   <th
                     scope="row"
                     rowSpan={moto.servicios.length}
-                    className="fw-bold text-center"
+                    className="celda-marca fw-bold text-center"
                   >
                     {moto.marca}
                   </th>
 
                   <td
                     rowSpan={moto.servicios.length}
-                    className="text-center"
+                    className="celda-modelo text-center"
                   >
                     {moto.modelo}
                   </td>
@@ -55,7 +55,7 @@ function ServicioTecnico(){
               <td>{srv.service}</td>
               <td>{srv.intervalo}</td>
               <td>{srv.tareas}</td>
-              <td>{srv.precio}</td>
+              <td className="precio-servicio">{srv.precio}</td>
               <td>{srv.garantia}</td>
             </tr>
           ))

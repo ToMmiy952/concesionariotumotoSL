@@ -1,58 +1,12 @@
-import ventasIniciales from '../../../../backend/data/ventas.json'
-import { obtenerMoto, cambiarStock } from '../admin/productosService'
-import { hoyLocal, horaLocal } from '../../shared/utils/fechas'
 import { apiJson, mensajeDeError } from '../../shared/utils/api'
 
-const CLAVE = 'ventas'
 export const PORCENTAJE_COMISION = 10 // % por defecto
 
 export function calcularComision(monto) {
   return monto * PORCENTAJE_COMISION / 100
 }
 
-export function obtenerVentas() {
-  const guardado = localStorage.getItem(CLAVE)
-  if (!guardado) {
-    localStorage.setItem(CLAVE, JSON.stringify(ventasIniciales))
-    return ventasIniciales
-  }
-  return JSON.parse(guardado)
-}
-
-function guardar(ventas) {
-  localStorage.setItem(CLAVE, JSON.stringify(ventas))
-}
-
-function siguienteId(ventas) {
-  return ventas.length ? Math.max(...ventas.map(v => v.id)) + 1 : 1
-}
-
-// Venta presencial de una moto, registrada por un vendedor (genera comisión)
-export function registrarVenta(idMoto, vendedor) {
-  const moto = obtenerMoto(idMoto)
-  if (!moto || moto.stock <= 0) return false // sin stock no se vende
-
-  const ventas = obtenerVentas()
-  const motoModelo = `${moto.marca} ${moto.modelo}`
-  const venta = {
-    id: siguienteId(ventas),
-    tipo: 'Moto',
-    idMoto: moto.id,
-    motoModelo,
-    descripcion: motoModelo,
-    idVendedor: vendedor.id,
-    nombreVendedor: vendedor.nombre,
-    fecha: hoyLocal(),
-    hora: horaLocal(),
-    monto: moto.precio,
-    comision: calcularComision(moto.precio),
-  }
-  guardar([...ventas, venta])
-  cambiarStock(moto.id, -1)
-  return true
-}
-
-// ---- API: ventas (POST /ventas/online, GET /ventas, GET /ventas/:id) ----
+// ---- API: ventas (POST /ventas/online, POST /ventas/motos, GET /ventas, GET /ventas/:id) ----
 // Todas devuelven { ok: true, ... } o { ok: false, error }
 
 // Pasa los importes (texto en la API) a número
@@ -76,6 +30,13 @@ function normalizarVenta(v) {
 // Paga el carrito del cliente: la API crea la venta, descuenta el stock y vacía el carrito
 export async function pagarCarrito() {
   const r = await apiJson('/ventas/online', { method: 'POST' })
+  return r.ok ? { ok: true, venta: normalizarVenta(r.data) } : { ok: false, error: mensajeDeError(r) }
+}
+
+// Venta presencial de una moto (vendedor): la API crea la venta, descuenta el stock y sincroniza el estado
+export async function registrarVentaMoto(idMoto, idReserva = null) {
+  const cuerpo = idReserva ? { idMoto, idReserva } : { idMoto }
+  const r = await apiJson('/ventas/motos', { method: 'POST', body: JSON.stringify(cuerpo) })
   return r.ok ? { ok: true, venta: normalizarVenta(r.data) } : { ok: false, error: mensajeDeError(r) }
 }
 

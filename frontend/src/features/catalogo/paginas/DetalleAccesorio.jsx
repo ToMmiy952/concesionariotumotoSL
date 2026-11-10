@@ -67,6 +67,11 @@ function DetalleAccesorio() {
         maximumFractionDigits: 0
     }).format(accesorio.precio);
 
+    // La API guarda un solo talle por accesorio; el selector trabaja con una lista
+    const tallesDisponibles = accesorio.talle
+        ? (Array.isArray(accesorio.talle) ? accesorio.talle : [accesorio.talle])
+        : [];
+
     async function manejadorComprar() {
         const sesion = obtenerSesion();
 
@@ -79,7 +84,7 @@ function DetalleAccesorio() {
 
         // No se puede superar el stock sumando lo que ya hay en el carrito (de cualquier talle)
         const enCarrito = carrito
-            .filter((item) => item.id === accesorio.id)
+            .filter((item) => item.id === accesorio.id_producto)
             .reduce((acc, item) => acc + item.cantidad, 0);
         if (enCarrito >= accesorio.stock) {
             setMensaje({ tipo: 'warning', texto: 'Ya tenés en el carrito todo el stock disponible de este accesorio.' });
@@ -88,7 +93,7 @@ function DetalleAccesorio() {
 
         // Agregar el producto al carrito (POST /carrito/items; la API vuelve a validar el stock)
         const r = await agregarProducto({
-            id: accesorio.id,
+            id: accesorio.id_producto,
             nombre: accesorio.nombre,
             precio: accesorio.precio,
             imagen: accesorio.imagen,
@@ -122,7 +127,7 @@ function DetalleAccesorio() {
                         {accesorio.descripcion}
                     </p>
 
-                    <SelectorTalles tallesDisponibles={accesorio.talle} onSeleccionar={setTalleElegido} />
+                    <SelectorTalles tallesDisponibles={tallesDisponibles} onSeleccionar={setTalleElegido} />
 
                     <ul className="list-group list-group-flush mb-4">
                         <li className="list-group-item px-0">
