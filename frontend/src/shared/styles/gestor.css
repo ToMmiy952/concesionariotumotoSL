@@ -185,3 +185,110 @@
         padding: var(--espaciado-md);
     }
 }
+
+/* ===== Suavizado visual del gestor ===== */
+.gestor-sidebar {
+    border-radius: 0 var(--radio-borde) var(--radio-borde) 0;
+    box-shadow: 4px 0 20px rgba(3, 4, 78, 0.12);
+}
+
+.gestor-sidebar .nav-link {
+    border-radius: var(--radio-chico);
+}
+
+.gestor-sidebar .nav-link.active {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.gestor-topbar {
+    border-radius: 0 0 var(--radio-borde) var(--radio-borde);
+    box-shadow: var(--sombra-tarjeta);
+}
+
+.tarjeta-metrica,
+.tarjeta-tabla {
+    border-color: transparent;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.tarjeta-metrica:hover {
+    box-shadow: var(--sombra-hover);
+    transform: translateY(-2px);
+}
+
+.tarjeta-metrica .icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+    font-size: 1.4rem;
+    border-radius: var(--radio-chico);
+    background-color: rgba(15, 62, 153, 0.1);
+}
+
+/* Tablas del gestor: encabezado suave y filas con separadores finos */
+.gestor .table > :not(caption) > * > * {
+    border-bottom-color: var(--color-borde);
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.gestor .table thead th {
+    color: var(--color-primario-claro);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom-width: 2px;
+}
+
+.gestor .table-hover > tbody > tr:hover > * {
+    --bs-table-bg-state: #f0f4fb;
+}
+
+.miniatura-moto {
+    border-radius: var(--radio-chico);
+}
+
+/* Login */
+.login-pagina {
+    background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-primario-claro) 100%);
+}
+
+.login-pagina form {
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+/* ===== Animación del menú del gestor: barra lateral que crece al pasar el mouse ===== */
+.gestor-sidebar .nav-link {
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+
+.gestor-sidebar .nav-link::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    width: 3px;
+    height: 0;
+    border-radius: 3px;
+    background-color: var(--color-texto-claro);
+    transform: translateY(-50%);
+    transition: height 0.3s ease;
+}
+
+.gestor-sidebar .nav-link:hover::before,
+.gestor-sidebar .nav-link.active::before {
+    height: 55%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gestor-sidebar .nav-link,
+    .gestor-sidebar .nav-link::before {
+        transition: none;
+    }
+}
