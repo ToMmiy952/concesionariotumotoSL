@@ -1,7 +1,7 @@
 function ImagenSeccion({ foto, descripcion }) {
     return (
         <>
-            <div style={{ position: 'relative', display: 'inline-block' }}>
+            <div className="banner-seccion" style={{ position: 'relative', display: 'inline-block' }}>
                 <img src={foto} alt="Descripción" />
 
                 <p style={{
