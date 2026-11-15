@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listarReservas, cambiarEstadoReserva, concretarVenta, ESTADOS, ETIQUETA_ESTADO } from './reservasService'
 import { formatearFechaHora } from '../../shared/utils/fechas'
+import ModalConfirmar from '../../shared/components/ModalConfirmar'
 
 const COLOR_ESTADO = {
   vigente: 'text-bg-warning',
@@ -16,6 +17,7 @@ function PedidosPage() {
   const [aviso, setAviso] = useState(null) // resultado de la última acción: { tipo, texto }
   const [procesando, setProcesando] = useState(null) // id de la reserva con una acción en curso
   const [filtro, setFiltro] = useState('Todos')
+  const [pendiente, setPendiente] = useState(null) // acción esperando confirmación: { tipo: 'concretar' | 'cancelar', reserva }
   const [recarga, setRecarga] = useState(0) // cambiar este número vuelve a pedir la lista
 
   useEffect(() => {
@@ -49,14 +51,14 @@ function PedidosPage() {
     setRecarga(n => n + 1) // releemos la lista para ver el estado real
   }
 
-  function concretar(c) {
-    if (!confirm(`¿Concretar la venta de ${c.marca} ${c.modelo} a ${c.nombre_interesado}?`)) return
-    ejecutar(c, () => concretarVenta(c.id_moto, c.id_reserva), 'Venta registrada: la reserva quedó concretada.')
-  }
-
-  function cancelar(c) {
-    if (!confirm(`¿Cancelar la reserva de ${c.nombre_interesado}?`)) return
-    ejecutar(c, () => cambiarEstadoReserva(c.id_reserva, 'cancelada'), 'Reserva cancelada.')
+  function confirmarPendiente() {
+    const { tipo, reserva: c } = pendiente
+    setPendiente(null)
+    if (tipo === 'concretar') {
+      ejecutar(c, () => concretarVenta(c.id_moto, c.id_reserva), 'Venta registrada: la reserva quedó concretada.')
+    } else {
+      ejecutar(c, () => cambiarEstadoReserva(c.id_reserva, 'cancelada'), 'Reserva cancelada.')
+    }
   }
 
   const visibles = filtro === 'Todos' ? reservas : reservas.filter(c => c.estado_reserva === filtro)
@@ -135,10 +137,10 @@ function PedidosPage() {
                     <div className="mt-3 d-flex flex-wrap gap-2">
                       {vigente && (
                         <>
-                          <button className="btn btn-success" disabled={ocupada || c.moto_sin_stock} onClick={() => concretar(c)}>
+                          <button className="btn btn-success" disabled={ocupada || c.moto_sin_stock} onClick={() => setPendiente({ tipo: 'concretar', reserva: c })}>
                             <i className="bi bi-cart-check me-1"></i>Concretar venta
                           </button>
-                          <button className="btn btn-outline-secondary" disabled={ocupada} onClick={() => cancelar(c)}>
+                          <button className="btn btn-outline-secondary" disabled={ocupada} onClick={() => setPendiente({ tipo: 'cancelar', reserva: c })}>
                             <i className="bi bi-x-circle me-1"></i>Cancelar reserva
                           </button>
                         </>
@@ -166,7 +168,37 @@ function PedidosPage() {
           </div>
         </>
       )}
+
+      {/* El modal es un componente aparte: así este componente no lee propiedades de `pendiente` (que puede ser null) */}
+      {pendiente && (
+        <ModalPendiente pendiente={pendiente} onConfirmar={confirmarPendiente} onCancelar={() => setPendiente(null)} />
+      )}
     </section>
   )
 }
+
+// Confirmación de "Concretar venta" o "Cancelar reserva". Solo se monta cuando hay una acción pendiente
+function ModalPendiente({ pendiente, onConfirmar, onCancelar }) {
+  const { tipo, reserva } = pendiente
+  const concretar = tipo === 'concretar'
+  return (
+    <ModalConfirmar
+      abierto
+      titulo={concretar ? 'Concretar venta' : 'Cancelar reserva'}
+      icono={concretar ? 'bi-cart-check' : 'bi-x-circle'}
+      variante={concretar ? 'success' : 'danger'}
+      textoConfirmar={concretar ? 'Concretar venta' : 'Cancelar reserva'}
+      textoCancelar="Volver"
+      onConfirmar={onConfirmar}
+      onCancelar={onCancelar}
+    >
+      {concretar ? (
+        <p className="mb-0">¿Concretar la venta de <strong>{reserva.marca} {reserva.modelo}</strong> a <strong>{reserva.nombre_interesado}</strong>?</p>
+      ) : (
+        <p className="mb-0">¿Cancelar la reserva de <strong>{reserva.nombre_interesado}</strong>? La moto vuelve a quedar disponible.</p>
+      )}
+    </ModalConfirmar>
+  )
+}
+
 export default PedidosPage

@@ -21,13 +21,15 @@ function LayoutGestor() {
         <nav className="nav flex-column gap-1">
           {sesion.rol === 'administrador' && (
             <>
-              <NavLink className="nav-link" to="/gestor" end><i className="bi bi-speedometer2 me-2"></i>Panel</NavLink>
+              <NavLink className="nav-link" to="/gestor" end><i className="bi bi-speedometer2 me-2"></i>Métricas</NavLink>
               <NavLink className="nav-link" to="/gestor/productos"><i className="bi bi-bicycle me-2"></i>Motos</NavLink>
               <NavLink className="nav-link" to="/gestor/accesorios"><i className="bi bi-bag me-2"></i>Accesorios</NavLink>
+              <NavLink className="nav-link" to="/gestor/vendedores"><i className="bi bi-people me-2"></i>Vendedores</NavLink>
             </>
           )}
           <NavLink className="nav-link" to="/gestor/pedidos"><i className="bi bi-inbox me-2"></i>Pedidos</NavLink>
           <NavLink className="nav-link" to="/gestor/stock"><i className="bi bi-box-seam me-2"></i>Stock</NavLink>
+          <NavLink className="nav-link" to="/gestor/venta-accesorios"><i className="bi bi-bag-check me-2"></i>Venta de accesorios</NavLink>
           {sesion.rol === 'vendedor' && (
             <NavLink className="nav-link" to="/gestor/comisiones"><i className="bi bi-percent me-2"></i>Comisiones</NavLink>
           )}

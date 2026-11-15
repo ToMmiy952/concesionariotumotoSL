@@ -8,6 +8,8 @@ const router = Router();
 router.param('id', validarId);
 
 // La gestión de cuentas es exclusiva del administrador
+router.get('/vendedores', verificarToken, permitirRoles('ADMINISTRADOR'), usuariosController.listarVendedores);
+router.post('/vendedores', verificarToken, permitirRoles('ADMINISTRADOR'), usuariosController.crearVendedor);
 router.patch('/:id/activo', verificarToken, permitirRoles('ADMINISTRADOR'), usuariosController.cambiarActivo);
 
 export default router;
