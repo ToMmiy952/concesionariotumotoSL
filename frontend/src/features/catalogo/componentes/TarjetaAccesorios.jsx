@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { pesos } from "../../../shared/utils/formato";
 
 function TarjetaAccesorios({ id, nombre, precio, imagen }) {
     
@@ -19,12 +20,12 @@ function TarjetaAccesorios({ id, nombre, precio, imagen }) {
                     className="img-fluid mb-3"
                 />
 
-                <h4 className="fs-6 fw-normal text-secondary mb-1">
+                <h4 className="nombre-producto mb-1">
                     {nombre} 
                 </h4>                
 
                 <p className="precio fs-5 fw-bold text-dark mb-1">
-                    {"$"}{precio}
+                    {pesos(precio)}
                 </p>
             </Link>
         </div>

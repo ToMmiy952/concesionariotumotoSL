@@ -54,9 +54,19 @@ function PanelInicioPage() {
   const ventasMes = delMes?.cantidad_ventas ?? 0
   const ingresosMes = delMes?.monto_total ?? 0
 
+  // la API ya manda los tipos ordenados de más a menos ventas: el primero es el más realizado
+  const porTipo = metricas.ventas_por_tipo ?? []
+  const totalVentas = porTipo.reduce((acc, t) => acc + t.cantidad_ventas, 0)
+  const porcentaje = t => (totalVentas > 0 ? Math.round((t.cantidad_ventas / totalVentas) * 100) : 0)
+  // textos ya armados (vacíos si todavía no hay ventas): el JSX no lee propiedades de un objeto que puede no existir
+  const nombreTipoTop = porTipo.length > 0 ? porTipo[0].tipo_venta : '—'
+  const detalleTipoTop = porTipo.length > 0
+    ? `${porTipo[0].cantidad_ventas} de ${totalVentas} ventas (${porcentaje(porTipo[0])}%)`
+    : ''
+
   return (
     <section>
-      <h2 className="mb-4">Panel de control</h2>
+      <h2 className="mb-4">Panel de métricas</h2>
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-md-6 col-xl-3">
@@ -82,6 +92,31 @@ function PanelInicioPage() {
             <i className="bi bi-exclamation-triangle icono"></i>
             <div><h3>Motos sin stock</h3><p>{sinStock ?? '—'}</p></div>
           </div>
+        </div>
+      </div>
+
+      <div className="row g-3 mb-4">
+        <div className="col-12 col-xl-4">
+          <div className="tarjeta-metrica">
+            <i className="bi bi-trophy icono"></i>
+            <div>
+              <h3>Tipo de venta más realizado</h3>
+              <p>{nombreTipoTop}</p>
+              {detalleTipoTop && <small className="text-muted">{detalleTipoTop}</small>}
+            </div>
+          </div>
+        </div>
+        <div className="col-12 col-xl-8">
+          <TablaReporte
+            titulo="Ventas por tipo"
+            filas={porTipo}
+            columnas={[
+              { titulo: 'Tipo', valor: f => f.tipo_venta },
+              { titulo: 'Ventas', valor: f => f.cantidad_ventas, derecha: true },
+              { titulo: '% del total', valor: f => `${porcentaje(f)}%`, derecha: true },
+              { titulo: 'Monto', valor: f => pesos(f.monto_total), derecha: true },
+            ]}
+          />
         </div>
       </div>
 

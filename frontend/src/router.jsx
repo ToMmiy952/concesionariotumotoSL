@@ -22,7 +22,10 @@ import { protegerRuta, redirigirSiHaySesion } from './features/auth/loaders'
 import PedidosPage from './features/vendedor/PedidosPage'
 import StockPage from './features/vendedor/StockPage'
 import ComisionesPage from './features/vendedor/ComisionesPage'
+import VentaAccesoriosPage from './features/vendedor/VentaAccesoriosPage'
+import VendedoresPage from './features/admin/VendedoresPage'
 import PantallaPago from './features/carrito/paginas/PantallaPago'
+import CompraExitosaPage from './features/carrito/paginas/CompraExitosaPage'
 import MisPedidosPage from './features/cliente/MisPedidosPage'
 
 //Estos datos inicialmente estaban en app.jsx pero ahora van en router, ya que app queda limpia solo con router.
@@ -85,6 +88,7 @@ export const router = createBrowserRouter([
                 {path: 'accesorios/:id', element: <DetalleAccesorio/>},
                 {path: 'buscar', element: <ResultadosBusqueda/>},
                 {path: 'PantallaPago', element: <PantallaPago/>},
+                {path: 'compra-exitosa', element: <CompraExitosaPage/>, loader: protegerRuta(['cliente'])},
                 {path: 'mis-pedidos', element: <MisPedidosPage/>, loader: protegerRuta(['cliente'])},
                 {path: '*', element: <PaginaNoEncontrada/>}
                 //RECORDARRRRRRRRR: Agregar el * para capturar un error de pagina no encontrada
@@ -102,6 +106,8 @@ export const router = createBrowserRouter([
         { index: true, element: <PanelInicioPage />, loader: protegerRuta(['administrador']) },
         { path: 'pedidos', element: <PedidosPage /> },
         { path: 'stock', element: <StockPage /> },
+        { path: 'venta-accesorios', element: <VentaAccesoriosPage /> },
+        { path: 'vendedores', element: <VendedoresPage />, loader: protegerRuta(['administrador']) },
         { path: 'productos', element: <ProductosPage />, loader: protegerRuta(['administrador']) },
         { path: 'productos/nuevo', element: <ProductoFormPage />, loader: protegerRuta(['administrador']) },
         { path: 'productos/:id/editar', element: <ProductoFormPage />, loader: protegerRuta(['administrador']) },

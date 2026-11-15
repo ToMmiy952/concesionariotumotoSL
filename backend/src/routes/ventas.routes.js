@@ -12,6 +12,7 @@ router.use(verificarToken);
 
 router.post('/online', permitirRoles('CLIENTE'), ventasController.crearOnline);
 router.post('/motos', permitirRoles('VENDEDOR'), ventasController.crearMoto);
+router.post('/accesorios', permitirRoles('VENDEDOR', 'ADMINISTRADOR'), ventasController.crearAccesoriosPresencial);
 router.get('/', permitirRoles('CLIENTE', 'VENDEDOR', 'ADMINISTRADOR'), ventasController.listar);
 router.get('/:id', permitirRoles('CLIENTE', 'VENDEDOR', 'ADMINISTRADOR'), ventasController.obtenerPorId);
 

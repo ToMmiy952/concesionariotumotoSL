@@ -21,7 +21,7 @@ const ventasPorPeriodo = (unidad, ventana) =>
 export const metricasController = {
   // GET /api/v1/metricas/admin (admin: reportes de ventas)
   async deAdmin(req, res) {
-    const [semanales, mensuales, accesorios, motos, vendedores] = await Promise.all([
+    const [semanales, mensuales, accesorios, motos, vendedores, porTipo] = await Promise.all([
       ventasPorPeriodo('week', '7 weeks'), // últimas 8 semanas
       ventasPorPeriodo('month', '11 months'), // últimos 12 meses
       // 5 accesorios más vendidos
@@ -58,6 +58,13 @@ export const metricasController = {
          GROUP BY u.id_usuario, u.nombre
          ORDER BY monto_total DESC, u.id_usuario`
       ),
+      // cantidad y monto de ventas por tipo ('Moto', 'Accesorio Online', 'Accesorio Presencial')
+      pool.query(
+        `SELECT tipo_venta, COUNT(*)::int AS cantidad_ventas, COALESCE(SUM(monto_total), 0) AS monto_total
+         FROM ventas
+         GROUP BY tipo_venta
+         ORDER BY cantidad_ventas DESC, tipo_venta`
+      ),
     ]);
 
     const conMontoNumerico = (fila) => ({ ...fila, monto_total: Number(fila.monto_total) });
@@ -67,6 +74,7 @@ export const metricasController = {
       ventas_mensuales: mensuales.rows.map(conMontoNumerico),
       accesorios_mas_vendidos: accesorios.rows.map(conMontoNumerico),
       motos_mas_vendidas: motos.rows.map(conMontoNumerico),
+      ventas_por_tipo: porTipo.rows.map(conMontoNumerico),
       desempeno_vendedores: vendedores.rows.map((v) => ({
         ...conMontoNumerico(v),
         comision_total: comisionDe(v.monto_total),

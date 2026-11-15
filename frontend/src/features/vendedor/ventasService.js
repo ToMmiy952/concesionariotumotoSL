@@ -18,6 +18,9 @@ function normalizarVenta(v) {
     tipo: v.tipo_venta,
     idCliente: v.id_cliente,
     idVendedor: v.id_vendedor,
+    metodoPago: v.metodo_pago ?? null, // 'Credito' | 'Debito' | 'Mercado Pago' (solo compras online)
+    tipoEntrega: v.tipo_entrega ?? null, // 'Domicilio' | 'Retiro'
+    direccionEntrega: v.direccion_entrega ?? null,
     items: (v.detalle ?? []).map(d => ({
       idProducto: d.id_producto,
       nombre: d.producto,
@@ -27,9 +30,12 @@ function normalizarVenta(v) {
   }
 }
 
-// Paga el carrito del cliente: la API crea la venta, descuenta el stock y vacía el carrito
-export async function pagarCarrito() {
-  const r = await apiJson('/ventas/online', { method: 'POST' })
+// Paga el carrito del cliente: la API crea la venta, descuenta el stock y vacía el carrito.
+// datos = { metodoPago: 'credito' | 'debito' | 'mercadopago', tipoEntrega: 'domicilio' | 'retiro', direccion }
+// Los datos de la tarjeta nunca se envían: acá se arma el cuerpo con solo estos tres campos
+export async function pagarCarrito({ metodoPago, tipoEntrega, direccion }) {
+  const cuerpo = { metodoPago, tipoEntrega, direccion: tipoEntrega === 'domicilio' ? direccion : undefined }
+  const r = await apiJson('/ventas/online', { method: 'POST', body: JSON.stringify(cuerpo) })
   return r.ok ? { ok: true, venta: normalizarVenta(r.data) } : { ok: false, error: mensajeDeError(r) }
 }
 
@@ -37,6 +43,13 @@ export async function pagarCarrito() {
 export async function registrarVentaMoto(idMoto, idReserva = null) {
   const cuerpo = idReserva ? { idMoto, idReserva } : { idMoto }
   const r = await apiJson('/ventas/motos', { method: 'POST', body: JSON.stringify(cuerpo) })
+  return r.ok ? { ok: true, venta: normalizarVenta(r.data) } : { ok: false, error: mensajeDeError(r) }
+}
+
+// Venta presencial de mostrador de solo accesorios (sin cliente ni vendedor, sin comisión): la API descuenta el stock
+// items: [{ idAccesorio, cantidad }]
+export async function registrarVentaAccesorios(items) {
+  const r = await apiJson('/ventas/accesorios', { method: 'POST', body: JSON.stringify({ items }) })
   return r.ok ? { ok: true, venta: normalizarVenta(r.data) } : { ok: false, error: mensajeDeError(r) }
 }
 
@@ -60,3 +73,6 @@ export async function listarVentasConDetalle() {
   if (fallo) return fallo
   return { ok: true, ventas: detalles.map(d => d.venta) }
 }
+
+// La base guarda 'Credito' / 'Debito' sin tilde: así se muestran al usuario
+export const ETIQUETA_METODO_PAGO = { Credito: 'Crédito', Debito: 'Débito', 'Mercado Pago': 'Mercado Pago' }

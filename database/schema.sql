@@ -116,6 +116,11 @@ CREATE TABLE ventas (
     tipo_venta VARCHAR(30) NOT NULL CHECK (tipo_venta IN ('Moto', 'Accesorio Online', 'Accesorio Presencial')),
     id_cliente INT REFERENCES clientes(id_usuario),
     id_vendedor INT REFERENCES vendedores(id_usuario),
+    -- Solo las compras online los completan (el resto de las ventas los deja en NULL). La tarjeta nunca se guarda
+    metodo_pago VARCHAR(20) CHECK (metodo_pago IN ('Credito', 'Debito', 'Mercado Pago')),
+    tipo_entrega VARCHAR(20) CHECK (tipo_entrega IN ('Domicilio', 'Retiro')),
+    direccion_entrega VARCHAR(150),
+    CONSTRAINT chk_direccion_entrega CHECK (tipo_entrega = 'Domicilio' OR direccion_entrega IS NULL),
     CONSTRAINT chk_reglas_venta CHECK (
         (tipo_venta = 'Moto' AND id_vendedor IS NOT NULL AND id_cliente IS NULL) OR
         (tipo_venta = 'Accesorio Online' AND id_cliente IS NOT NULL AND id_vendedor IS NULL) OR
