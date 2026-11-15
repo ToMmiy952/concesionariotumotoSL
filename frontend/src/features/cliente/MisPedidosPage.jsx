@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { listarVentasConDetalle } from '../vendedor/ventasService'
+import { listarVentasConDetalle, ETIQUETA_METODO_PAGO } from '../vendedor/ventasService'
 import { formatearFechaHora } from '../../shared/utils/fechas'
 
 const pesos = n =>
@@ -52,6 +52,15 @@ function MisPedidosPage() {
                 <strong>Total</strong>
                 <strong className="text-primary">{pesos(p.monto)}</strong>
               </div>
+              {/* los pedidos anteriores a esta función no tienen pago ni entrega guardados */}
+              {p.metodoPago && (
+                <div className="small text-muted mt-2">
+                  <i className="bi bi-credit-card me-1"></i>{ETIQUETA_METODO_PAGO[p.metodoPago]}
+                  <span className="mx-2">·</span>
+                  <i className="bi bi-truck me-1"></i>
+                  {p.tipoEntrega === 'Domicilio' ? `Envío a ${p.direccionEntrega}` : 'Retiro en la tienda'}
+                </div>
+              )}
             </div>
           </div>
         ))}

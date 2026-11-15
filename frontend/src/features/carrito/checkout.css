@@ -1,0 +1,366 @@
+/* ===== Checkout: pasos, métodos de pago, tarjeta virtual y resumen ===== */
+
+/* La pantalla de pago usa más ancho que el resto del sitio */
+.container.checkout-ancho {
+    max-width: 1320px;
+}
+
+/* --- Barra de pasos --- */
+.checkout-pasos {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin: 0 auto 2rem;
+    padding: 0;
+    max-width: 520px;
+    list-style: none;
+}
+
+.checkout-paso {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #8a93a6;
+    text-align: center;
+}
+
+/* línea que une un paso con el siguiente */
+.checkout-paso:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: calc(50% + 24px);
+    width: calc(100% - 48px);
+    height: 3px;
+    border-radius: 2px;
+    background-color: var(--color-borde);
+    transition: background-color 0.3s ease;
+}
+
+.checkout-paso.completo:not(:last-child)::after {
+    background-color: var(--color-acento);
+}
+
+.checkout-paso-numero {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid var(--color-borde);
+    background-color: #fff;
+    transition: all 0.3s ease;
+}
+
+.checkout-paso.activo,
+.checkout-paso.completo {
+    color: var(--color-primario);
+}
+
+.checkout-paso.activo .checkout-paso-numero {
+    border-color: var(--color-acento);
+    background-color: var(--color-acento);
+    color: #fff;
+    box-shadow: 0 0 0 5px rgba(15, 62, 153, 0.15);
+}
+
+.checkout-paso.completo .checkout-paso-numero {
+    border-color: var(--color-acento);
+    background-color: rgba(15, 62, 153, 0.1);
+    color: var(--color-acento);
+}
+
+/* --- Tarjetas de contenido --- */
+.checkout-tarjeta {
+    max-width: none; /* style.css limita todos los <form> a 30rem: acá la tarjeta usa todo el ancho de su columna */
+    background-color: var(--color-fondo-tarjeta);
+    border-radius: var(--radio-borde);
+    box-shadow: var(--sombra-tarjeta);
+    padding: 1.5rem;
+    animation: checkout-entrada 0.3s ease;
+}
+
+.checkout-tarjeta h3 {
+    margin-bottom: 1.25rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-primario);
+}
+
+/* campos más grandes y legibles (números de tarjeta, DNI, celular) */
+.checkout-tarjeta .form-control {
+    padding: 0.65rem 0.85rem;
+    font-size: 1.1rem;
+}
+
+/* --- Opciones seleccionables (entrega y método de pago) --- */
+.checkout-opcion {
+    position: relative; /* el radio oculto se posiciona dentro de su opción y no suelta el scroll de la página */
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    height: 100%;
+    min-width: 0;
+    padding: 0.75rem 0.8rem;
+    border: 2px solid var(--color-borde);
+    border-radius: var(--radio-chico);
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.checkout-opcion:hover {
+    border-color: #b9c6e4;
+}
+
+.checkout-opcion input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.checkout-opcion .icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.6rem;
+    height: 2.6rem;
+    font-size: 1.3rem;
+    color: var(--color-acento);
+    background-color: rgba(15, 62, 153, 0.08);
+    border-radius: var(--radio-chico);
+}
+
+
+.checkout-opcion small {
+    display: block;
+    color: #6b7487;
+    font-weight: 400;
+}
+
+/* Grillas que se acomodan solas según el ancho disponible (no el de la pantalla) */
+.checkout-opciones {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+    gap: 0.75rem;
+}
+
+.checkout-opciones-metodos {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+}
+
+/* Opción con el ícono arriba y el texto centrado (medios de pago) */
+.checkout-opcion.vertical {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 0.75rem;
+    text-align: center;
+}
+
+/* Tarjeta virtual y campos: lado a lado si entran, si no uno debajo del otro */
+.checkout-pago-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.checkout-opcion.elegida {
+    border-color: var(--color-acento);
+    background-color: #f3f6fd;
+    box-shadow: 0 0 0 3px rgba(15, 62, 153, 0.12);
+}
+
+.checkout-opcion:has(input:focus-visible) {
+    outline: 3px solid rgba(15, 62, 153, 0.35);
+    outline-offset: 2px;
+}
+
+/* --- Tarjeta virtual --- */
+.tarjeta-virtual {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 1.586;
+    margin: 0 auto;
+    padding: 1.4rem 1.6rem; /* en rem: el texto de adentro escala con el ancho de la tarjeta (cqw), el relleno no */
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #fff;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 60%, #3f6fd6 100%);
+    box-shadow: 0 14px 30px rgba(3, 4, 78, 0.28);
+    overflow: hidden;
+}
+
+.tarjeta-virtual::after {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -25%;
+    width: 70%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.09);
+}
+
+.tarjeta-virtual-superior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 4.4cqw;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.95;
+}
+
+.tarjeta-virtual-chip {
+    width: 12cqw;
+    height: 9cqw;
+    border-radius: 1.8cqw;
+    background: linear-gradient(135deg, #f5d98a, #c9a24a);
+}
+
+.tarjeta-virtual-numero {
+    font-family: 'Courier New', monospace;
+    font-size: 7.6cqw;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.tarjeta-virtual-inferior {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 3cqw;
+    font-size: 4.8cqw;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.tarjeta-virtual-inferior span {
+    display: block;
+    font-size: 3.2cqw;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.tarjeta-virtual-nombre {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* --- Panel de Mercado Pago (simulado) --- */
+.checkout-mp {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    border-radius: var(--radio-chico);
+    background-color: #eaf4ff;
+    color: #17426e;
+}
+
+.checkout-mp i {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 2.2rem;
+    color: #009ee3;
+}
+
+/* --- Resumen lateral --- */
+.checkout-resumen {
+    position: sticky;
+    top: 1rem;
+}
+
+/* cuando el resumen queda debajo del formulario no hace falta que se quede fijo */
+@media (max-width: 1199px) {
+    .checkout-resumen { position: static; }
+}
+
+.checkout-resumen-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--color-borde);
+}
+
+.checkout-resumen-item img {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    border-radius: 8px;
+    background-color: #f5f7fb;
+}
+
+/* --- Revisión (paso 3) --- */
+.checkout-dato {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: var(--radio-chico);
+    background-color: #f3f6fd;
+}
+
+.checkout-dato small {
+    display: block;
+    color: #6b7487;
+}
+
+/* --- Compra exitosa --- */
+.compra-exitosa {
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.compra-exitosa-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 84px;
+    margin-bottom: 1rem;
+    font-size: 2.8rem;
+    color: #fff;
+    border-radius: 50%;
+    background-color: #198754;
+    box-shadow: 0 0 0 10px rgba(25, 135, 84, 0.15);
+    animation: compra-check 0.5s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.compra-exitosa-detalle {
+    text-align: left;
+}
+
+@keyframes compra-check {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes checkout-entrada {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 575px) {
+    .checkout-tarjeta { padding: 1.1rem; }
+    .checkout-paso { font-size: 0.75rem; }
+}
