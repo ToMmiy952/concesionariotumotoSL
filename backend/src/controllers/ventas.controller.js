@@ -156,6 +156,71 @@ export const ventasController = {
     res.status(201).json(await buscarVentaConDetalle(idVenta));
   },
 
+  // POST /api/v1/ventas/accesorios (mostrador: venta presencial de solo accesorios, sin cliente ni vendedor, sin comisión)
+  // Body: { items: [{ idAccesorio, cantidad }] }
+  async crearAccesoriosPresencial(req, res) {
+    const { items } = req.body;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'Debés enviar al menos un accesorio en items' });
+    }
+    if (!items.every((i) => i && enteroPositivo(i.idAccesorio) && enteroPositivo(i.cantidad))) {
+      return res.status(400).json({ error: 'Cada item necesita idAccesorio y cantidad como enteros positivos' });
+    }
+
+    // Si el mismo accesorio viene repetido se suman las cantidades
+    const pedido = new Map();
+    for (const i of items) {
+      const id = Number(i.idAccesorio);
+      pedido.set(id, (pedido.get(id) ?? 0) + Number(i.cantidad));
+    }
+    const ids = [...pedido.keys()].sort((a, b) => a - b);
+
+    const { resultado, producto, idVenta } = await conTransaccion(async (db) => {
+      // FOR UPDATE bloquea los productos para que dos ventas simultáneas no se pasen del stock
+      const filas = await db.query(
+        `SELECT p.id_producto, p.precio, p.stock, p.esta_activo, a.nombre
+         FROM productos p
+         INNER JOIN accesorios a ON a.id_producto = p.id_producto
+         WHERE p.id_producto = ANY($1::int[])
+         ORDER BY p.id_producto
+         FOR UPDATE OF p`,
+        [ids]
+      );
+      if (filas.rows.length !== ids.length) return { resultado: 'accesorio_inexistente' };
+
+      const sinStock = filas.rows.find((f) => !f.esta_activo || pedido.get(f.id_producto) > f.stock);
+      if (sinStock) return { resultado: 'sin_stock', producto: sinStock.nombre };
+
+      const monto = redondear(filas.rows.reduce((acc, f) => acc + Number(f.precio) * pedido.get(f.id_producto), 0));
+      // tipo 'Accesorio Presencial': id_cliente e id_vendedor quedan en NULL (no genera comisión)
+      const venta = await db.query(
+        `INSERT INTO ventas (monto_total, tipo_venta) VALUES ($1, 'Accesorio Presencial') RETURNING id_venta`,
+        [monto]
+      );
+      const id = venta.rows[0].id_venta;
+
+      for (const f of filas.rows) {
+        const cantidad = pedido.get(f.id_producto);
+        await db.query(
+          `INSERT INTO detalle_venta (id_venta, id_producto, precio_unitario_historico, cantidad)
+           VALUES ($1, $2, $3, $4)`,
+          [id, f.id_producto, f.precio, cantidad]
+        );
+        await db.query('UPDATE productos SET stock = stock - $1 WHERE id_producto = $2', [cantidad, f.id_producto]);
+      }
+      return { resultado: 'ok', idVenta: id };
+    });
+
+    if (resultado === 'accesorio_inexistente') {
+      return res.status(404).json({ error: 'Alguno de los accesorios no existe' });
+    }
+    if (resultado === 'sin_stock') {
+      return res.status(400).json({ error: `No hay stock suficiente de "${producto}"` });
+    }
+    res.status(201).json(await buscarVentaConDetalle(idVenta));
+  },
+
   // GET /api/v1/ventas (cliente: las suyas, vendedor: las suyas, admin: todas; los filtros los hace el front)
   async listar(req, res) {
     const { rol, id_usuario } = req.usuario;

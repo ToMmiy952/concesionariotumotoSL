@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listarMotos } from '../admin/motosService'
 import { registrarVentaMoto, calcularComision } from './ventasService'
+import ModalConfirmar from '../../shared/components/ModalConfirmar'
 
 const pesos = n =>
   n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })
@@ -11,6 +12,7 @@ function StockPage() {
   const [error, setError] = useState(null) // error al cargar la lista
   const [aviso, setAviso] = useState(null) // resultado de la última venta: { tipo, texto }
   const [procesando, setProcesando] = useState(null) // id de la moto con una venta en curso
+  const [aConfirmar, setAConfirmar] = useState(null) // moto cuya venta espera la confirmación del vendedor
   const [recarga, setRecarga] = useState(0) // cambiar este número vuelve a pedir la lista
 
   useEffect(() => {
@@ -35,9 +37,9 @@ function StockPage() {
     setRecarga(n => n + 1)
   }
 
-  async function vender(moto) {
-    const msg = `¿Registrar la venta de ${moto.marca} ${moto.modelo} por ${pesos(moto.precio)}?\nTu comisión: ${pesos(calcularComision(moto.precio))}`
-    if (!confirm(msg)) return
+  async function vender() {
+    const moto = aConfirmar
+    setAConfirmar(null)
     setProcesando(moto.id_producto)
     setAviso(null)
     const r = await registrarVentaMoto(moto.id_producto)
@@ -106,7 +108,7 @@ function StockPage() {
                           <button
                             className="btn btn-sm btn-primary"
                             disabled={m.stock === 0 || procesando === m.id_producto}
-                            onClick={() => vender(m)}
+                            onClick={() => setAConfirmar(m)}
                           >
                             <i className="bi bi-cart-check me-1"></i>
                             {procesando === m.id_producto ? 'Registrando...' : 'Registrar venta'}
@@ -121,7 +123,28 @@ function StockPage() {
           )}
         </>
       )}
+
+      {/* El modal es un componente aparte: así este componente no lee propiedades de `aConfirmar` (que puede ser null) */}
+      {aConfirmar && <ModalVentaMoto moto={aConfirmar} onConfirmar={vender} onCancelar={() => setAConfirmar(null)} />}
     </section>
+  )
+}
+
+// Confirmación de la venta de una moto. Solo se monta cuando hay una moto elegida
+function ModalVentaMoto({ moto, onConfirmar, onCancelar }) {
+  return (
+    <ModalConfirmar
+      abierto
+      titulo="Registrar venta"
+      icono="bi-cart-check"
+      textoConfirmar="Registrar venta"
+      onConfirmar={onConfirmar}
+      onCancelar={onCancelar}
+    >
+      <p className="mb-1">¿Confirmás la venta de <strong>{moto.marca} {moto.modelo}</strong>?</p>
+      <div className="modal-confirmar-detalle"><span>Precio</span><strong>{pesos(moto.precio)}</strong></div>
+      <div className="modal-confirmar-detalle"><span>Tu comisión</span><strong>{pesos(calcularComision(moto.precio))}</strong></div>
+    </ModalConfirmar>
   )
 }
 

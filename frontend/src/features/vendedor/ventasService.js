@@ -40,6 +40,13 @@ export async function registrarVentaMoto(idMoto, idReserva = null) {
   return r.ok ? { ok: true, venta: normalizarVenta(r.data) } : { ok: false, error: mensajeDeError(r) }
 }
 
+// Venta presencial de mostrador de solo accesorios (sin cliente ni vendedor, sin comisión): la API descuenta el stock
+// items: [{ idAccesorio, cantidad }]
+export async function registrarVentaAccesorios(items) {
+  const r = await apiJson('/ventas/accesorios', { method: 'POST', body: JSON.stringify({ items }) })
+  return r.ok ? { ok: true, venta: normalizarVenta(r.data) } : { ok: false, error: mensajeDeError(r) }
+}
+
 // Ventas visibles para el usuario logueado (cliente: las suyas, vendedor: las suyas, admin: todas), sin detalle
 export async function listarVentas() {
   const r = await apiJson('/ventas')
