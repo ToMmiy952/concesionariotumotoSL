@@ -1062,7 +1062,12 @@
           "name": "Pagar carrito (cliente)",
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/ventas/online",
               "host": [
@@ -1072,6 +1077,15 @@
                 "ventas",
                 "online"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodoPago\": \"credito\",\n  \"tipoEntrega\": \"domicilio\",\n  \"direccion\": \"Av. Siempre Viva 742, San Luis\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "response": [],
@@ -1092,7 +1106,12 @@
           "name": "Pagar carrito vacio (400)",
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/ventas/online",
               "host": [
@@ -1102,6 +1121,15 @@
                 "ventas",
                 "online"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodoPago\": \"credito\",\n  \"tipoEntrega\": \"retiro\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "response": [],
