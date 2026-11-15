@@ -562,3 +562,47 @@ textarea {
         justify-content: center;
     }
 }
+
+/* Carrusel de promociones en celular/tablet vertical.
+   Las 4 tarjetas de cada página se muestran en 2x2 (no apiladas) para que el
+   slide no sea tan alto, y las flechas se fijan arriba en las esquinas para
+   que sean visibles sin hacer scroll. */
+@media (max-width: 767.98px) {
+    /* 2 columnas: anula el col-12 que trae TarjetaMoto en pantallas chicas */
+    #carrusel-promocion .carousel-item .row > [class*="col-"] {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+
+    /* Tarjetas un poco más compactas para bajar el alto del slide */
+    #carrusel-promocion .tarjeta-moto {
+        padding: var(--espaciado-sm);
+    }
+
+    #carrusel-promocion .tarjeta-moto img {
+        height: 7rem;
+    }
+
+    /* Flechas arriba a la izquierda/derecha, siempre a la vista.
+       Misma flecha que en PC: sin círculo, sin borde y sin fondo. */
+    #carrusel-promocion .carousel-control-prev,
+    #carrusel-promocion .carousel-control-next {
+        top: 0.35rem;
+        bottom: auto;
+        width: 2.5rem !important; /* el botón "next" trae w-auto (width: auto !important) */
+        height: 2.5rem;
+        padding: 0;
+        background: none;
+        border: 0;
+        box-shadow: none;
+        opacity: 1;
+    }
+
+    #carrusel-promocion .carousel-control-prev {
+        left: 0.35rem;
+    }
+
+    #carrusel-promocion .carousel-control-next {
+        right: 0.35rem;
+    }
+}
