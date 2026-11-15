@@ -226,32 +226,6 @@ function DetalleMoto() {
                         Dejanos tus datos y la moto queda reservada por 48 horas. Un vendedor se va a comunicar con vos.
                     </p>
 
-                    {/* Mensaje de confirmación exitosa */}
-                    {consultaEnviada && (
-                        <div className="alert alert-success" role="alert">
-                            ¡Tu reserva fue registrada! La moto queda reservada por 48 horas y te contactaremos pronto.
-                        </div>
-                    )}
-
-                    {/* Error al reservar (por ejemplo, sin stock) */}
-                    {errorReserva && (
-                        <div className="alert alert-danger" role="alert">{errorReserva}</div>
-                    )}
-
-                    {/* Sin stock no se puede reservar */}
-                    {moto.stock <= 0 && (
-                        <div className="alert alert-warning" role="alert">
-                            Esta moto está agotada por el momento, por eso no se pueden registrar nuevas reservas.
-                        </div>
-                    )}
-
-                    {/* Alerta general si hay campos vacíos al enviar */}
-                    {Object.keys(errores).length > 0 && (
-                        <div className="alert alert-danger" role="alert">
-                            Por favor, completa todos los campos obligatorios indicados.
-                        </div>
-                    )}
-
                     <form ref={formularioRef} onSubmit={manejarEnvio} noValidate>
                         {/* Campo Nombre */}
                         <div className="mb-3">
@@ -360,6 +334,35 @@ function DetalleMoto() {
                         <button type="submit" className="btn btn-primary" disabled={moto.stock <= 0 || enviando}>
                             {enviando ? 'Enviando...' : 'Reservar cita'}
                         </button>
+
+                        {/* Mensajes de resultado, justo debajo del botón para que queden a la vista */}
+                        <div className="mt-3">
+                            {/* Mensaje de confirmación exitosa */}
+                            {consultaEnviada && (
+                                <div className="alert alert-success" role="alert">
+                                    ¡Tu reserva fue registrada! La moto queda reservada por 48 horas y te contactaremos pronto.
+                                </div>
+                            )}
+
+                            {/* Error al reservar (por ejemplo, sin stock) */}
+                            {errorReserva && (
+                                <div className="alert alert-danger" role="alert">{errorReserva}</div>
+                            )}
+
+                            {/* Sin stock no se puede reservar */}
+                            {moto.stock <= 0 && (
+                                <div className="alert alert-warning" role="alert">
+                                    Esta moto está agotada por el momento, por eso no se pueden registrar nuevas reservas.
+                                </div>
+                            )}
+
+                            {/* Alerta general si hay campos vacíos al enviar */}
+                            {Object.keys(errores).length > 0 && (
+                                <div className="alert alert-danger" role="alert">
+                                    Por favor, completa todos los campos obligatorios indicados.
+                                </div>
+                            )}
+                        </div>
                     </form>
                 </section>
             </main>
