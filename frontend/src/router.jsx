@@ -9,6 +9,7 @@ import Contacto from './features/contacto/Contacto'
 import Accesorios from './features/catalogo/paginas/CatalogoAccesorios'
 import PaginaNoEncontrada from './shared/paginas/PaginaNoEncontrada'
 import DetalleAccesorio from './features/catalogo/paginas/DetalleAccesorio'
+import ResultadosBusqueda from './features/catalogo/paginas/ResultadosBusqueda'
 import LoginPage from './features/auth/LoginPage'
 import RegistroPage from './features/auth/RegistroPage'
 import LayoutGestor from './shared/layout/LayoutGestor'
@@ -82,6 +83,7 @@ export const router = createBrowserRouter([
                 {path: 'contacto', element: <Contacto/>},
                 {path: 'accesorios', element: <Accesorios/>},
                 {path: 'accesorios/:id', element: <DetalleAccesorio/>},
+                {path: 'buscar', element: <ResultadosBusqueda/>},
                 {path: 'PantallaPago', element: <PantallaPago/>},
                 {path: 'mis-pedidos', element: <MisPedidosPage/>, loader: protegerRuta(['cliente'])},
                 {path: '*', element: <PaginaNoEncontrada/>}
