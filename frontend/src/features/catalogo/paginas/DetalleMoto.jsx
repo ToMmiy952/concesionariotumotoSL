@@ -3,6 +3,15 @@ import { useState, useEffect, useRef } from 'react';
 import { obtenerMotoPorId } from '../servicios/motoService';
 import { crearReserva } from '../../vendedor/reservasService';
 
+// Devuelve la fecha de hoy en formato YYYY-MM-DD usando la hora local
+// (toISOString() trabaja en UTC y podría adelantar o atrasar el día)
+function obtenerFechaHoy() {
+    const hoy = new Date();
+    const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoy.getDate()).padStart(2, "0");
+    return `${hoy.getFullYear()}-${mes}-${dia}`;
+}
+
 function DetalleMoto() {
     const { id } = useParams(); // Obtengo el ID que viene en la URL
 
@@ -70,6 +79,7 @@ function DetalleMoto() {
 
     function validarCampos(valores) {
         const nuevosErrores = {};
+        const fechaHoy = obtenerFechaHoy();
 
         // Comprobar campos obligatorios vacíos (trim() elimina espacios sobrantes)
         if (!valores.nombre.trim()) {
@@ -86,6 +96,12 @@ function DetalleMoto() {
             nuevosErrores.telefono = "El teléfono es obligatorio.";
         } else if (valores.telefono.replace(/\D/g, "").length < 8) {
             nuevosErrores.telefono = "Ingresá un teléfono válido (mínimo 8 dígitos).";
+        }
+
+        // La fecha es opcional, pero si se carga no puede ser anterior a hoy
+        // (el formato YYYY-MM-DD permite comparar como texto)
+        if (valores.fecha && valores.fecha < fechaHoy) {
+            nuevosErrores.fecha = "La fecha no puede ser anterior a la de hoy.";
         }
 
         if (!valores.horario) {
@@ -288,10 +304,14 @@ function DetalleMoto() {
                                 type="date"
                                 id="fecha"
                                 name="fecha"
-                                className="form-control"
+                                className={`form-control ${errores.fecha ? 'is-invalid' : ''}`}
+                                min={obtenerFechaHoy()}
                                 value={formulario.fecha}
                                 onChange={handleChange}
                             />
+                            {errores.fecha && (
+                                <div className="invalid-feedback">{errores.fecha}</div>
+                            )}
                         </div>
 
                         {/* Campo Horario */}
@@ -356,10 +376,10 @@ function DetalleMoto() {
                                 </div>
                             )}
 
-                            {/* Alerta general si hay campos vacíos al enviar */}
+                            {/* Alerta general si hay campos vacíos o inválidos al enviar */}
                             {Object.keys(errores).length > 0 && (
                                 <div className="alert alert-danger" role="alert">
-                                    Por favor, completa todos los campos obligatorios indicados.
+                                    Por favor, revisá los campos marcados en el formulario.
                                 </div>
                             )}
                         </div>
